@@ -1,0 +1,307 @@
+#include <iostream>
+#include <string>
+#include <limits>
+#include "../Prototypes.h"
+
+using namespace std;
+
+int main()
+{
+	Head* head = NULL;								//The head of the original list
+	Head* list = NULL;								//Head of list to find occurrence
+
+	string answer;									//User selection in the main menu
+	size_t id;										//User selectable ID
+	int information;								//Variable to display the information field of the list item and store user input
+	
+	head = new Head;
+	if (head != NULL)
+	{
+		do
+		{
+			cout << "Menu:" << endl;
+			cout << "1) -- Add item to the end of the list." << endl;
+			cout << "2) -- Add item to the beginning of the list." << endl;
+			cout << "3) -- Remove the last item of the list." << endl;
+			cout << "4) -- Remove the first item of the list." << endl;
+			cout << "5) -- Add item by ID." << endl;
+			cout << "6) -- Get item by ID." << endl;
+			cout << "7) -- Remove an element by ID." << endl;
+			cout << "8) -- Get the size of a list." << endl;
+			cout << "9) -- Print the list." << endl;
+			cout << "10) -- Clear the list." << endl;
+			cout << "11) -- Replace element by ID." << endl;
+			cout << "12) -- Find the first occurrence of another list in the list." << endl;
+			cout << "13) -- Completion of work." << endl;
+
+			cout << "Your choice is -- ";
+			getline(cin, answer);
+			
+			try
+			{
+				answer = corrector(answer);
+			}
+			catch (domain_error)
+			{
+				if (answer.length() != 0)
+					answer.erase(1);
+				answer[0] = '0';
+			}
+			
+			switch (stoi(answer))
+			{
+				//-----------------------
+			case(1):
+				system("cls");
+
+				//Reading user input
+				information = input("Adding an item to the end of the list:");
+
+				try
+				{
+					head->push_back(information);
+				}
+				catch (out_of_range exeption)
+				{
+					cerr << "Error: " << exeption.what() << endl;
+				}
+				delay();
+				break;
+				//-----------------------
+			case(2):
+				system("cls");
+
+				//Reading user input
+				information = input("Adding an item to the beginning of the list:");
+
+				try
+				{
+					head->push_front(information);
+				}
+				catch (out_of_range exeption)
+				{
+					cerr << "Error: " << exeption.what() << endl;
+				}
+				delay();
+				break;
+				//-----------------------
+			case(3):
+				system("cls");
+				cout << "Removing the last item in the list:" << endl;
+				try
+				{
+					head->pop_back(true);
+				}
+				catch (out_of_range exeption)
+				{
+					cerr << "Error: " << exeption.what() << endl;
+				}
+				delay();
+				break;
+				//-----------------------
+			case(4):
+				system("cls");
+				cout << "Removing the first item in the list:" << endl;
+				try
+				{
+					head->pop_front();
+				}
+				catch (out_of_range exeption)
+				{
+					cerr << "Error: " << exeption.what() << endl;
+				}
+				delay();
+				break;
+				//-----------------------
+			case(5):
+				try
+				{
+					if (!head->isEmpty())
+					{
+						system("cls");
+						cout << "Adding an item by ID:" << endl;
+
+						//Reading user input
+						information = input("Add a new element:");
+
+						id = head->check();
+						head->insert(id, information);
+					}
+					else throw out_of_range("The list is empty!");
+				}
+				catch (out_of_range exeption)
+				{
+					cerr << "Error: " << exeption.what() << endl;
+				}
+
+				delay();
+				break;
+			//-----------------------
+			case(6):
+				try
+				{	
+					if (!head->isEmpty())
+					{
+						system("cls");
+						cout << "Getting an item by ID:" << endl;
+						id = head->check();
+						information = head->at(id);
+						cout << "In the element with ID = " << id << " is stored -- " << information << endl;
+					}
+					else throw out_of_range("The list is empty!");
+				}
+				catch (out_of_range exeption)
+				{
+					cerr << "Error: " << exeption.what() << endl;
+				}
+				delay();
+				break;
+			//-----------------------
+			case(7):
+				try
+				{
+					if (!head->isEmpty())
+					{
+						system("cls");
+						cout << "Removing an element by ID:" << endl;
+						id = head->check();
+						head->remove(id);
+					}
+					else throw out_of_range("The list is empty!");
+				}
+				catch (out_of_range exeption)
+				{
+					cerr << "Error: " << exeption.what() << endl;
+				}
+				delay();
+				break;
+			//-----------------------
+			case(8):
+				system("cls");
+				cout << "Getting the size of a list:" << endl;
+				cout << "The size of list -- " << head->get_size() << endl;
+				delay();
+				break;
+			//-----------------------
+			case(9):
+				system("cls");
+				cout << "The resulting list:" << endl;
+				try
+				{
+					head->print_to_console();
+				}
+				catch (out_of_range exeption)
+				{
+					cerr << "Error: " << exeption.what() << endl;
+				}
+				delay();
+				break;
+			//-----------------------
+			case(10):
+				system("cls");
+				cout << "Clearing the list:" << endl;
+				try
+				{
+					head->clear(true);
+				}
+				catch (out_of_range exeption)
+				{
+					cerr << "Error: " << exeption.what() << endl;
+				}
+				delay();
+				break;
+			//-----------------------
+			case(11):
+				try
+				{
+					if (!head->isEmpty())
+					{
+						system("cls");
+						cout << "Replacing an element by ID:" << endl;
+						id = head->check();
+						//Getting a new value for a list item
+						information = input("0");
+
+						head->set(id, information);
+					}
+					else throw out_of_range("The list is empty!");
+				}
+				catch (out_of_range exeption)
+				{
+					cerr << "Error: " << exeption.what() << endl;
+				}
+				delay();
+				break;
+			//-----------------------
+			case(12):
+				try
+				{
+					if (!head->isEmpty())
+					{
+						system("cls");
+						list = new Head;
+						if (list != NULL)
+						{
+							cout << "Finding the first occurrence of another list in a list:" << endl;
+
+							//Input
+							do
+							{
+								cout << "Enter the elements of the second list (elements are added to the end) -- ";
+								cin >> information;
+								cin.ignore(32767, '\n');
+
+								//Add an item to the second list
+								list->push_back(information);
+
+								cout << "Do you want to continue the input? (If you want type the 1) -- ";
+								cin >> information;
+								cout << endl;
+								cin.ignore(32767, '\n');
+							} while (information == 1);
+
+							id = find_first(head, list);
+							cout << "Index of the first occurrence of the second list in the first = " << id << endl;
+						}
+						else
+							throw out_of_range("Memory not allocated.");
+					}
+					else throw out_of_range("The list is empty!");
+				}
+				catch (domain_error exeption)
+				{
+					cerr << "Error: " << exeption.what() << endl;
+					
+					delete list;
+					list = NULL;
+				}
+				catch (out_of_range exeption)
+				{
+					cerr << "Error: " << exeption.what() << endl;
+					if (list != NULL)
+					{
+						delete list;
+						list = NULL;
+					}
+				}
+				
+				delay();
+				break;
+			//-----------------------
+			case(13):
+				cout << "Goodbye." << endl;
+				delete head;
+				head = NULL;
+				break;
+			//-----------------------
+			default:
+				cout << "Uncorrect input. Try again." << endl;
+				delay();
+			}
+		} while (stoi(answer) != 13);
+	}
+	else
+		cout << "Error the memory allocation." << endl;
+
+	return 0;
+}
