@@ -1,0 +1,323 @@
+#include "CppUnitTest.h"
+#include "../Prototypes.h"
+#include <iostream>
+#include <stdexcept>
+
+using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+
+namespace Testlab1
+{
+	TEST_CLASS(FunctionTests)
+	{
+		public:
+			Head* head = NULL;									//Pointer to the head of the first list
+			Head* list = NULL;									//Pointer to the head of the second list		
+
+			TEST_METHOD_INITIALIZE(setUp)
+			{
+				//Allocating memory under the head of the list
+				head = new Head;
+			}
+			
+			TEST_METHOD_CLEANUP(cleanUp)
+			{
+				//Freeing memory from the list
+				delete head;
+			}
+
+			TEST_METHOD(push_back_test)
+			{
+				head->push_back(1);
+				head->push_back(2);
+				head->push_back(3);
+
+				Assert::AreEqual(head->at(0), 1);
+				Assert::AreEqual(head->get_size(), (size_t)3);
+			}
+
+			TEST_METHOD(push_front_test)
+			{
+				head->push_front(1);
+				head->push_front(2);
+				head->push_front(3);
+
+				Assert::AreEqual(head->get_size(), (size_t)3);
+				Assert::AreEqual(head->at(2), 3);
+			}
+
+			TEST_METHOD(pop_back_test1)
+			{
+				head->push_front(1);
+				head->push_front(2);
+				head->push_front(3);
+				head->push_front(4);
+				head->push_front(5);
+
+				head->pop_back(false);
+
+				Assert::AreEqual(head->get_size(), (size_t)4);
+				Assert::AreEqual(head->at(4), 5);
+			}
+
+			TEST_METHOD(pop_back_test2)
+			{
+				try
+				{
+					head->pop_back(false);
+				}
+				catch (std::out_of_range exeption)
+				{
+					Assert::AreEqual("The list is empty!", exeption.what());
+				}
+			}
+
+			TEST_METHOD(pop_front_test1)
+			{
+				head->push_front(1);
+				head->push_front(2);
+				head->push_front(3);
+				head->push_front(4);
+				head->push_front(5);
+
+				head->pop_front();
+
+				Assert::AreEqual(head->get_size(), (size_t)4);
+				Assert::AreEqual(head->at(0), 1);
+			}
+
+			TEST_METHOD(pop_front_test2)
+			{
+				try
+				{
+					head->pop_front();
+				}
+				catch (std::out_of_range exeption)
+				{
+					Assert::AreEqual("The list is empty!", exeption.what());
+				}
+			}
+
+			TEST_METHOD(insert_test)
+			{
+				head->push_back(1);
+				head->push_back(2);
+				head->push_back(3);
+				head->push_back(4);
+				head->push_back(5);
+
+				head->insert(2, 6);
+
+				Assert::AreEqual(head->get_size(), (size_t)6);
+				Assert::AreEqual(head->at(5), 6);
+			}
+
+			TEST_METHOD(at_test)
+			{
+				head->push_back(1);
+				head->push_back(2);
+				head->push_back(3);
+				head->push_back(4);
+				head->push_back(5);
+
+				Assert::AreEqual(head->at(0), 1);
+				Assert::AreEqual(head->at(4), 5);
+			}
+
+			TEST_METHOD(remove_test)
+			{
+				head->push_back(1);
+				head->push_back(2);
+				head->push_back(3);
+				head->push_back(4);
+				head->push_back(5);
+
+				head->remove(2);
+
+				Assert::AreEqual(head->get_size(), (size_t)4);
+				Assert::AreEqual(head->at(1), 2);
+				Assert::AreEqual(head->at(3), 4);
+			}
+
+			TEST_METHOD(get_size_test)
+			{
+				head->push_back(1);
+				head->push_back(2);
+				head->push_back(3);
+				head->push_back(4);
+				head->push_back(5);
+
+				Assert::AreEqual(head->get_size(), (size_t)5);
+			}
+
+			TEST_METHOD(print_to_console)
+			{
+				try
+				{
+					head->print_to_console();
+				}
+				catch (std::out_of_range exeption)
+				{
+					Assert::AreEqual("The list is empty!", exeption.what());
+				}
+			}
+
+			TEST_METHOD(clear_test1)
+			{
+				head->push_back(1);
+				head->push_back(2);
+				head->push_back(3);
+				head->push_back(4);
+				head->push_back(5);
+
+				head->clear(false);
+
+				Assert::AreEqual(head->get_size(), (size_t)0);
+			}
+
+			TEST_METHOD(clear_test2)
+			{
+				try
+				{
+					head->clear(false);
+				}
+				catch (std::out_of_range exeption)
+				{
+					Assert::AreEqual("The list is empty!", exeption.what());
+				}
+			}
+
+			TEST_METHOD(set_test)
+			{
+				head->push_back(1);
+
+				head->set(0, 5);
+
+				Assert::AreEqual(head->at(0), 5);
+			}
+
+			TEST_METHOD(isEmpty_test)
+			{
+				head->push_back(1);
+				head->push_back(2);
+				head->push_back(3);
+
+				Assert::AreEqual(head->isEmpty(), false);
+			}
+
+			TEST_METHOD(finder_test)
+			{
+				head->push_back(1);
+				head->push_back(2);
+				head->push_back(3);
+
+				Assert::AreEqual(*head->finder(1)->Information, 2);
+			}
+
+			TEST_METHOD(upper_test)
+			{
+				head->push_back(1);
+				head->push_back(2);
+				head->push_back(3);
+
+				Assert::AreEqual(head->get_size(), (size_t)3);
+			}
+
+			TEST_METHOD(find_first_text1)
+			{
+				list = new Head;
+
+				head->push_back(1);
+				head->push_back(2);
+				head->push_back(3);
+				head->push_back(4);
+				head->push_back(5);
+				head->push_back(6);
+				head->push_back(7);
+
+				list->push_back(4);
+				list->push_back(5);
+
+				Assert::AreEqual(find_first(head, list), (size_t)3);
+			}
+
+			TEST_METHOD(find_first_text2)
+			{
+				list = new Head;
+				size_t id;							//ID we will never get
+
+				head->push_back(1);
+				head->push_back(2);
+				head->push_back(3);
+				head->push_back(4);
+
+				list->push_back(8);
+
+				try
+				{
+					id = find_first(head, list);
+				}
+				catch (std::domain_error exeption)
+				{
+					Assert::AreEqual("The second list does not appear in the first.", exeption.what());
+				}
+				
+			}
+
+			TEST_METHOD(find_first_text3)
+			{
+				list = new Head;
+				size_t id;							//ID we will never get
+
+				head->push_back(1);
+				head->push_back(2);
+
+				list->push_back(4);
+				list->push_back(5);
+				list->push_back(6);
+
+				try
+				{
+					id = find_first(head, list);
+				}
+				catch (std::domain_error exeption)
+				{
+					Assert::AreEqual("The second list is longer than the first.", exeption.what());
+				}
+
+			}
+
+			TEST_METHOD(corrector_test1)
+			{
+				std::string answer = "5";							//Correct string
+
+				Assert::AreEqual(corrector(answer), (std::string)"5");
+			}
+
+			TEST_METHOD(corrector_test2)
+			{
+				std::string answer = "-90";							//Invalid string
+				try 
+				{
+					answer = corrector(answer);
+				}
+				catch (std::domain_error exeption)
+				{
+					Assert::AreEqual("Invalid input", exeption.what());
+				}
+			}
+
+			TEST_METHOD(corrector_test3)
+			{
+				std::string answer = "";							//Invalid string
+
+				try 
+				{
+					answer = corrector(answer);
+				}
+				catch (std::domain_error exeption)
+				{
+					Assert::AreEqual("Invalid input", exeption.what());
+				}
+			}
+	};
+}
