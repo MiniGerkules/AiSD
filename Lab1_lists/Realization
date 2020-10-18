@@ -1,0 +1,504 @@
+#include"Prototypes.h"
+#include <iostream>
+#include <string>
+#include <cctype>
+#include <limits>
+
+using namespace std;
+
+//Implementing constructors and destructors
+
+//Constructor for the head of the list
+Head :: Head()
+{
+	Counter = 0;
+	Cnt = 0;
+	First = NULL;
+	Last = NULL;
+}
+
+//Destructor for the head of the list
+Head :: ~Head()
+{
+	//Clearing the list
+	try
+	{
+		clear(false);
+	}
+	catch (out_of_range exeption)
+	{
+		cerr << "Error: " << exeption.what() << endl;
+	}
+}
+
+//Constructor for the node of the list
+/*
+	size_t id -- item ID
+	Node* previous -- pointer to the previous item in the list
+	Node* next -- pointer to the next item in the list
+	int information -- list item information field
+*/
+Node :: Node(size_t id, Node *previous, Node *next, int information)
+	: ID(id), Previous(previous), Next(next)
+{
+	this->Information = new int;
+	if (this->Information == NULL)
+		throw out_of_range("Memory not allocated.");
+	*this->Information = information;
+}
+
+//Destructor for the node of the list
+Node :: ~Node()
+{
+	delete this->Information;
+}
+
+//Implementation of functions and methods
+
+//A function to delay and clear the console
+void delay()
+{
+	system("pause");
+	system("cls");
+}
+
+//Function that checks the correctness of user input
+//string str -- the line where the user entered data
+string corrector(string str)
+{
+	size_t i;									//For loop parameter
+	size_t result;								//The variable with which we check the string
+
+	result = 1;
+	//If the user entered '\n', throw an exception
+	if (str.length() != 0)
+	{
+		//Checking whether the user entered the number
+		for (i = 0; i < str.length(); i++)
+		{
+			result *= isdigit(str[i]);
+			if (result == 0)
+			{
+				i = str.length();
+				throw domain_error("Invalid input");
+			}
+		}
+	}
+	else
+		throw domain_error("Invalid input");
+
+	return str;
+}
+
+//User input
+//string str -- conclusion to help the user
+int input(string str)
+{
+	int information;						//User entered number
+	
+	if (str[0] != '0')
+		cout << str << endl;
+
+	cout << "Enter the number -- ";
+	cin >> information;
+	cout << endl;
+	cin.ignore(32767, '\n');
+	
+	return information;
+}
+
+//Finding the first occurrence of another list in the list
+/*
+	Head* list1 -- pointer to the head of the first list
+	Head* list2 -- pointer to the head of the second list
+*/
+size_t find_first(Head* list1, Head* list2)
+{
+	Node* elem1;							//First list item
+	Node* elem2;							//Second list item
+	size_t id;								//ID of the first occurrence of the second list in the first
+	size_t ideal_size;						//
+	size_t size;							/* The size of the first list, taking into account the passage of elements
+											(when passing through the element, we will decrease by 1) */
+	bool flag;								//Variable to determine equality of two lists
+
+	//Initialization
+	elem1 = list1->First;
+	elem2 = list2->First;
+	ideal_size = list1->Cnt;
+	size = ideal_size;
+	//If the first list is greater than or equal to the second largest
+	if (list1->Cnt >= list2->Cnt)
+	{
+		do
+		{
+			//If the elements are equal, we begin to look at the following elements for equality
+			if (*elem1->Information == *elem2->Information)
+			{
+				flag = true;
+				id = elem1->ID;
+				size--;
+				while ((elem2->Next != NULL) && (flag == true))
+				{
+					elem1 = elem1->Next;
+					elem2 = elem2->Next;
+					size--;
+					if (*elem1->Information != *elem2->Information)
+						flag = false;
+				}
+
+				//If the second list does not appear in the first one, then we return to the starting point
+				if (flag != true)
+				{
+					elem1 = list1->finder(id);
+					elem1 = elem1->Next;
+					elem2 = list2->First;
+					ideal_size--;
+					size = ideal_size;
+				}
+			}
+			//If the information fields of the list items are not equal, go to the next item in the first list
+			else
+			{
+				flag = false;
+				elem1 = elem1->Next;
+				ideal_size--;
+				size = ideal_size;
+			}
+		} while ((size >= list2->Cnt) && (flag == false));
+
+		//If the second list does not appear in the first, then we create an exception
+		if (flag == false)
+			throw domain_error("The second list does not appear in the first.");
+	}
+	else
+		throw domain_error("The second list is longer than the first.");
+			
+	//Freeing allocated memory
+	delete list2;
+
+	return id;
+}
+
+//Adding to the end of the list
+//int information -- the information field entered by the user
+void Head :: push_back(int information)
+{
+	//Add a new item to the list
+	if (isEmpty())
+	{
+		First = new Node(Counter, NULL, NULL, information);
+		if (First == NULL)
+			throw out_of_range("Memory not allocated.");
+		Last = First;
+	}
+	else
+	{
+		Last = new Node(Counter, Last, NULL, information);
+		if (Last == NULL)
+			throw out_of_range("Memory not allocated.");
+		Last->Previous->Next = Last;
+	}
+	
+	cout << "Item added successfully." << endl;
+
+	upper();
+}
+
+//Adding to the beginning of the list
+//int information -- the information field entered by the user
+void Head :: push_front(int information)
+{	
+	//Add a new item to the list
+	if (isEmpty())
+	{
+		First = new Node(Counter, NULL, NULL, information);
+		if (First == NULL)
+			throw out_of_range("Memory not allocated.");
+		Last = First;
+	}
+	else
+	{
+		First = new Node(Counter, NULL, First, information);
+		if (First == NULL)
+			throw out_of_range("Memory not allocated.");
+		First->Next->Previous = First;
+	}
+
+	cout << "Item added successfully." << endl;
+
+	upper();
+}
+
+//Remove the last item
+//bool flag -- flag to determine whether to display a message
+void Head :: pop_back(bool flag)
+{
+	Node *deleted;								//Variable to remove a list item
+	size_t id;									//ID of the deleted element for displaying the message
+
+	//Checking for emptinessand uniqueness of an element in the list
+	if (isEmpty())
+		throw out_of_range("The list is empty!");
+	//Add a new item to the list
+	else if (Last == First)
+	{
+		id = Last->ID;
+		delete Last;
+		Last = NULL;
+		First = NULL;
+		Cnt--;
+	}
+	else
+	{
+		deleted = Last;
+		id = deleted->ID;
+		Last = deleted->Previous;
+		Last->Next = NULL;
+		Cnt--;
+		delete deleted;
+	}
+
+	if (flag)
+		cout << "Item with ID -- " << id << " successfully deleted." << endl;
+}
+
+//Removing the first element
+void Head :: pop_front()
+{
+	Node *deleted;							//Variable to remove a list item
+	size_t id;								//ID of the element to remove
+
+	//Checking for emptinessand uniqueness of an element in the list
+	if (isEmpty())
+		throw out_of_range("The list is empty!");
+	//Add a new item to the list
+	else if (Last == First)
+		pop_back(true);
+	else
+	{
+		deleted = First;
+		id = deleted->ID;
+		First = deleted->Next;
+		First->Previous = NULL;
+		Cnt--;
+		delete deleted;
+
+		cout << "Item with ID -- " << id << " successfully deleted." << endl;
+	}
+}
+
+//Adding element by index (insert in front of an element that was previously accessible at this index)
+/*
+	size_t id -- ID of the element before which the new element should be inserted
+	int information -- list item information field
+*/
+void Head :: insert(size_t id, int information)
+{
+	Node* added;							//Added element
+	Node* supporting;						//The element before which we insert
+
+	//Finding the pivot
+	supporting = finder(id);
+	//Add a new item to the list
+	if (supporting == First)
+		push_front(information);
+	else
+	{
+		added = new Node(Counter, supporting->Previous, supporting, information);
+		if (added == NULL)
+			throw out_of_range("Memory not allocated.");
+		added->Previous->Next = added;
+		supporting->Previous = added;
+		upper();
+	}
+}
+
+//Getting an element by index
+//size_t id -- ID of the element, the information field of which you want to display
+int Head::at(size_t id)
+{
+	Node* sought;							//Searched element
+
+	//Finding the required element
+	sought = finder(id);
+	//Return his information
+	return *sought->Information;
+}
+
+//Deleting an element by index
+//size_t id -- ID of the element to be removed
+void Head :: remove(size_t id)
+{
+	Node *deleted;							//Variable to remove a list item
+	size_t ID;								//Variable for storing the ID of the deleted list item
+
+	//Find the item to remove
+	deleted = finder(id);
+
+	//Removing an item
+	if (deleted == Last)
+		pop_back(true);
+	else if (deleted == First)
+		pop_front();
+	else
+	{
+		ID = deleted->ID;
+		deleted->Previous->Next = deleted->Next;
+		deleted->Next->Previous = deleted->Previous;
+		delete deleted;
+		Cnt--;
+
+		cout << "Item with ID -- " << ID << " successfully deleted" << endl;
+	}
+}
+
+//Getting list size
+size_t Head :: get_size()
+{
+	return Cnt;
+}
+
+//Output of list items to the console through a separator (don't use at)
+void Head :: print_to_console()
+{
+	Node *node;								//List item
+
+	if (isEmpty())
+		throw out_of_range("The list is empty!");
+	else
+	{
+		node = First;
+		while (node != NULL)
+		{
+			cout << "Element with ID -- " << node->ID << " contains information -- " << *node->Information << endl;
+			node = node->Next;
+		}
+	}
+}
+
+//Removing all list items
+//bool flag -- flag specifying whether to display a message
+void Head :: clear(bool flag)
+{
+	if (!isEmpty())
+	{
+		while (!isEmpty())
+			pop_back(false);
+
+		if (flag)
+			cout << "List cleared." << endl;
+	}
+	else
+		throw out_of_range("The list is empty!");
+}
+
+//Replacing the element by index with the passed element
+/*
+	size_t id -- ID of the element for which you want to replace the value of the information field
+	int information -- new information for recording
+*/
+void Head :: set(size_t id, int information)
+{
+	Node* elem = NULL;							//The element whose value we will change
+
+	elem = finder(id);
+	cout << "Present value is -- " << *elem->Information << endl;
+	cout << "New value is -- " << information << endl;
+
+	*elem->Information = information;
+
+	cout << "Value rewritten successfully." << endl;
+}
+
+//Checking if the list is empty
+bool Head :: isEmpty()
+{
+	bool answer;								//Program response about empty list
+
+	if (First == NULL)
+		answer = true;
+	else
+		answer = false;
+
+	return answer;
+}
+
+//Finds the item you want
+//size_t id -- ID of the element to return a pointer to
+Node* Head :: finder(size_t id)
+{
+	Node *searched;								//Searched element
+
+	searched = First;
+	while (searched->ID != id)
+		searched = searched->Next;
+
+	return searched;
+}
+
+//Increases counters Cnt and Counter
+void Head :: upper()
+{
+	Cnt++;
+	Counter++;
+}
+
+//Entering and checking user selections
+size_t Head :: check()
+{
+	Node* elem;									//The variable with which we go through the list
+	char* index = NULL;							//All available id
+	size_t id;									//User selected ID
+	size_t i;									//For loop parameter
+	bool flag;									//Flag to determine whether to repeat the loop
+
+	//Check for emptiness
+	index = new char[Cnt];
+	if (index != NULL)
+	{
+		elem = First;
+
+		//Display all available IDs and write them to an array
+		i = 0;
+		cout << "\nAll available ID:" << endl;
+		while (elem != NULL)
+		{
+			cout << (i + 1) << ") -- ID = " << elem->ID << endl;
+			index[i] = (char)elem->ID;
+			elem = elem->Next;
+			i++;
+		}
+
+		do
+		{
+			//User input of the selected id is compared against all values ​​in the array
+			try
+			{
+				flag = false;
+				cout << "Choose the id you want -- ";
+				cin >> id;
+				cin.ignore(32767, '\n');
+
+				for (i = 0; i < Cnt; i++)
+					if ((int)index[i] == id)
+					{
+						flag = true;
+						i = Cnt;
+					}
+
+				if (flag == false)
+					throw domain_error("Invalid ID. Try Again.");
+			}
+			catch (domain_error exeption)
+			{
+				cerr << "Error : " << exeption.what() << endl;
+			}
+		} while (flag == false);
+
+		delete[] index;
+		return id;
+	}
+	else
+		throw out_of_range("Memory not allocated.");
+}
