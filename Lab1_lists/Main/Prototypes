@@ -1,0 +1,120 @@
+#pragma once
+
+#include <string>
+
+//Class prototypes
+
+//Class describing the list item
+class Node
+{
+public:
+	/*
+		size_t id -- item ID
+		Node* previous -- pointer to the previous item in the list
+		Node* next -- pointer to the next item in the list
+		int information -- list item information field
+	*/
+	Node(size_t id, Node* previous, Node* next, int information);
+
+	size_t ID;								//The id of the emelent
+	Node* Next;								//The pointer to next element of the list
+	Node* Previous;							//The pointer to previous element of the list
+	int* Information;						//The information field for the list item
+
+	~Node();
+};
+
+//Class describing the head of the list
+class Head
+{
+private:
+	size_t Counter;							//Counter ID nodes of list
+	size_t Cnt;								//The number of elements in the list
+	Node* First;							//The pointer to first element of the list
+	Node* Last;								//The pointer to last element of the list
+
+public:
+	Head();
+
+	~Head();
+
+	//Function prototypes
+
+	//Adding to the end of the list
+	//int information -- the information field entered by the user
+	void push_back(int information);
+
+	//Adding to the beginning of the list
+	//int information -- the information field entered by the user
+	void push_front(int information);
+
+	//Remove the last item
+	//bool flag -- flag to determine whether to display a message
+	void pop_back(bool flag);
+
+	//Removing the first element
+	void pop_front();
+
+	//Adding element by index (insert in front of an element that was previously accessible at this index)
+	/*
+		size_t id -- ID of the element before which the new element should be inserted
+		int information -- list item information field
+	*/
+	void insert(size_t id, int information);
+
+	//Getting an element by index
+	//size_t id -- ID of the element, the information field of which you want to display
+	int at(size_t id);
+
+	//Deleting an element by index
+	//size_t id -- ID of the element to be removed
+	void remove(size_t id);
+
+	//Getting list size
+	size_t get_size();
+
+	//Output of list items to the console through a separator (не использовать at)
+	void print_to_console();
+
+	//Removing all list items
+	//bool flag -- flag specifying whether to display a message
+	void clear(bool flag);
+
+	//Replacing the element by index with the passed element
+	/*
+		size_t id -- ID of the element for which you want to replace the value of the information field
+		int information -- new information for recording
+	*/
+	void set(size_t id, int information);
+
+	//Checking if the list is empty
+	bool isEmpty();
+
+	//Finds the item you want
+	//size_t id -- ID of the element to return a pointer to
+	Node* finder(size_t id);
+
+	//Increases counters Cnt and Counter
+	void upper();
+
+	//Entering and checking user selections
+	size_t check();
+
+	//Finding the first occurrence of another list in the list
+	/*
+		Head* list1 -- pointer to the head of the first list
+		Head* list2 -- pointer to the head of the second list
+	*/
+	friend size_t find_first(Head* list1, Head* list2);
+};
+
+//A function to delay and clear the console
+void delay();
+
+//Function that checks the correctness of user input
+//std::string str -- the line where the user entered data
+std::string corrector(std :: string str);
+
+//User input
+//std::string str -- conclusion to help the user
+int input(std::string str);
