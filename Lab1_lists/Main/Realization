@@ -1,125 +1,436 @@
-#pragma once
-
+#include"Prototypes.h"
+#include <iostream>
 #include <string>
+#include <cctype>
+#include <limits>
 
-//Class prototypes
+using namespace std;
 
-//Class describing the head of the list
-class List
+//Implementing constructors and destructors
+
+//Constructor for the head of the list
+List :: List()
 {
-private:
+	Size = 0;
+	First = NULL;
+	Last = NULL;
+}
 
-	//Class describing the list item
-	class Node
-	{
-	public:
-		/*
-			Node* previous -- pointer to the previous item in the list
-			Node* next -- pointer to the next item in the list
-			int information -- list item information field
-		*/
-		Node(Node* previous, Node* next, int information);
+/*
+	Constructor for the node of the list
+	size_t id -- item ID
+	Node* previous -- pointer to the previous item in the list
+	Node* next -- pointer to the next item in the list
+	int information -- list item information field
+*/
+List::Node::Node(Node *previous, Node *next, int information)
+	:Previous(previous), Next(next)
+{
+	this->Information = new int;
+	if (this->Information == NULL)
+		throw out_of_range("Memory not allocated.");
+	*this->Information = information;
+}
 
-		Node* Next;								//The pointer to next element of the list
-		Node* Previous;							//The pointer to previous element of the list
-		int* Information;						//The information field for the list item
+//Destructor for the node of the list
+List::Node::~Node()
+{
+	delete this->Information;
+}
 
-		~Node();
-	};
-
-	size_t Size;								//The number of elements in the list
-	Node* First;								//The pointer to first element of the list
-	Node* Last;									//The pointer to last element of the list
-
-public:
-	List();
-
-	//Function prototypes
-
-	/*
-		Adding to the end of the list
-		int information -- the information field entered by the user
-	*/
-	void push_back(int information);
-
-	/*
-		Adding to the beginning of the list
-		int information -- the information field entered by the user
-	*/
-	void push_front(int information);
-
-	//Remove the last item
-	void pop_back();
-
-	//Removing the first element
-	void pop_front();
-
-	/*
-		Adding element by index (insert in front of an element that was previously accessible at this index)
-		size_t id -- ID of the element before which the new element should be inserted
-		int information -- list item information field
-	*/
-	void insert(size_t id, int information);
-
-	/*
-		Getting an element by index
-		size_t id -- ID of the element, the information field of which you want to display
-	*/
-	int at(size_t id);
-
-	/*
-		Deleting an element by index
-		size_t id -- ID of the element to be removed
-	*/
-	void remove(size_t id);
-
-	//Getting list size
-	size_t get_size();
-
-	//Output of list items to the console through a separator (don't use at)
-	void print_to_console();
-
-	//Removing all list items
-	void clear();
-
-	/*
-		Replacing the element by index with the passed element
-		size_t id -- ID of the element for which you want to replace the value of the information field
-		int information -- new information for recording
-	*/
-	void set(size_t id, int information);
-
-	//Checking if the list is empty
-	bool isEmpty();
-
-	/*
-		Finds the item you want
-		size_t id -- ID of the element to return a pointer to
-	*/
-	Node* finder(size_t id);
-
-	//Entering and checking user selections
-	size_t check();
-
-	/*
-		Finding the first occurrence of another list in the list
-		Head* list1 -- pointer to the head of the first list
-		Head* list2 -- pointer to the head of the second list
-	*/
-	friend size_t find_first(List* list1, List* list2);
-};
+//Implementation of functions and methods
 
 //A function to delay and clear the console
-void delay();
+void delay()
+{
+	system("pause");
+	system("cls");
+}
 
 /*
 	Function that checks the correctness of user input
-	std::string str -- the line where the user entered data
+	string str -- the line where the user entered data
 */
-std::string corrector(std :: string str);
+string corrector(string str)
+{
+	size_t i;									//For loop parameter
+	size_t result;								//The variable with which we check the string
+
+	result = 1;
+	//If the user entered '\n', throw an exception
+	if (str.length() != 0)
+	{
+		//Checking whether the user entered the number
+		for (i = 0; i < str.length(); i++)
+		{
+			result *= isdigit(str[i]);
+			if (result == 0)
+			{
+				i = str.length();
+				throw domain_error("Invalid input");
+			}
+		}
+	}
+	else
+		throw domain_error("Invalid input");
+
+	return str;
+}
+
+//User input
+//string str -- conclusion to help the user
+int input(string str)
+{
+	int information;						//User entered number
+	
+	if (str[0] != '0')
+		cout << str << endl;
+
+	cout << "Enter the number -- ";
+	cin >> information;
+	cout << endl;
+	cin.ignore(32767, '\n');
+	
+	return information;
+}
 
 /*
-	User input
-	std::string str -- conclusion to help the user
+	//Finding the first occurrence of another list in the list
+	List* list1 -- pointer to the first list
+	List* list2 -- pointer to the second list
 */
-int input(std::string str);
+size_t find_first(List* list1, List* list2)
+{
+	List::Node* elem1;						//First list item
+	List::Node* elem2;						//Second list item
+	size_t id;								//ID of the first occurrence of the second list in the first
+	size_t i;								//For loop parameter
+	size_t j;								//For loop parameter
+	bool flag;								//Variable to determine equality of two lists
+
+	//Initialization
+	elem1 = list1->First;
+	//If the first list is greater than or equal to the second largest, we will work
+	if (list1->Size >= list2->Size)
+	{
+		flag = false;
+		for (i = 0; i <= (list1->Size - list2->Size); i++)
+		{
+			//If we find matching elements, we start comparing the elements of the lists
+			if (*elem1->Information == *list2->First->Information)
+			{
+				elem1 = elem1->Next;
+				elem2 = list2->First->Next;
+				flag = true;
+				for (j = 1; j < list2->Size; j++)
+				{
+					if (*elem1->Information == *elem2->Information)
+					{
+						elem1 = elem1->Next;
+						elem2 = elem2->Next;
+					}
+					else
+					{
+						flag = false;
+						j = list2->Size;
+					}
+				}
+				/*If the second list is not included in the first, we return to the starting point and go further along
+				the first list. Otherwise, remember the ID and exit the loops*/
+				if (flag == true)
+				{
+					id = i;
+					i = list1->Size - list2->Size;
+				}
+				else
+				{
+					elem1 = list1->finder(i);
+					elem1 = elem1->Next;
+				}
+			}
+			else elem1 = elem1->Next;
+		}
+		if (flag == false) throw domain_error("The second list does not appear in the first.");
+		else return id;
+	}
+	else throw domain_error("The second list is longer than the first.");
+}
+
+//Adding to the end of the list
+//int information -- the information field entered by the user
+void List::push_back(int information)
+{
+	//Add a new item to the list
+	if (isEmpty())
+	{
+		Last = new Node(NULL, NULL, information);
+		if (Last == NULL)
+			throw out_of_range("Memory not allocated.");
+		First = Last;
+	}
+	else
+	{
+		Last = new Node(Last, NULL, information);
+		if (Last == NULL)
+			throw out_of_range("Memory not allocated.");
+		Last->Previous->Next = Last;
+	}
+	
+	cout << "Item added successfully." << endl;
+
+	Size++;
+}
+
+//Adding to the beginning of the list
+//int information -- the information field entered by the user
+void List :: push_front(int information)
+{	
+	//Add a new item to the list
+	if (isEmpty())
+	{
+		First = new Node(NULL, NULL, information);
+		if (First == NULL)
+			throw out_of_range("Memory not allocated.");
+		Last = First;
+	}
+	else
+	{
+		First = new Node(NULL, First, information);
+		if (First == NULL)
+			throw out_of_range("Memory not allocated.");
+		First->Next->Previous = First;
+	}
+
+	cout << "Item added successfully." << endl;
+
+	Size++;
+}
+
+//Remove the last item
+//bool flag -- flag to determine whether to display a message
+void List :: pop_back()
+{
+	Node *deleted;								//Variable to remove a list item
+
+	//Checking for emptinessand uniqueness of an element in the list
+	if (isEmpty())
+		throw out_of_range("The list is empty!");
+	//Removing the element
+	else if (Last == First)
+	{
+		delete Last;
+		Last = NULL;
+		First = NULL;
+		Size--;
+	}
+	else
+	{
+		deleted = Last;
+		Last = deleted->Previous;
+		Last->Next = NULL;
+		Size--;
+		delete deleted;
+	}
+}
+
+//Removing the first element
+void List :: pop_front()
+{
+	Node *deleted;							//Variable to remove a list item
+
+	//Checking for emptinessand uniqueness of an element in the list
+	if (isEmpty())
+		throw out_of_range("The list is empty!");
+	//Removing the element
+	else if (Last == First)
+		pop_back();
+	else
+	{
+		deleted = First;
+		First = deleted->Next;
+		First->Previous = NULL;
+		Size--;
+		delete deleted;
+	}
+}
+
+//Adding element by index (insert in front of an element that was previously accessible at this index)
+/*
+	size_t id -- ID of the element before which the new element should be inserted
+	int information -- list item information field
+*/
+void List :: insert(size_t id, int information)
+{
+	Node* added;							//Added element
+	Node* supporting;						//The element before which we insert
+
+	//Finding the pivot
+	supporting = finder(id);
+	//Add a new item to the list
+	if (supporting == First)
+		push_front(information);
+	else
+	{
+		added = new Node(supporting->Previous, supporting, information);
+		if (added == NULL)
+			throw out_of_range("Memory not allocated.");
+		added->Previous->Next = added;
+		supporting->Previous = added;
+		Size++;
+	}
+}
+
+//Getting an element by index
+//size_t id -- ID of the element, the information field of which you want to display
+int List::at(size_t id)
+{
+	Node* sought;							//Searched element
+
+	//Finding the required element
+	sought = finder(id);
+	//Return his information
+	return *sought->Information;
+}
+
+//Deleting an element by index
+//size_t id -- ID of the element to be removed
+void List :: remove(size_t id)
+{
+	Node *deleted;							//Variable to remove a list item
+
+	//Find the item to remove
+	deleted = finder(id);
+	//Removing an item
+	if (deleted == Last)
+		pop_back();
+	else if (deleted == First)
+		pop_front();
+	else
+	{
+		deleted->Previous->Next = deleted->Next;
+		deleted->Next->Previous = deleted->Previous;
+		delete deleted;
+		Size--;
+	}
+}
+
+//Getting list size
+size_t List :: get_size()
+{
+	return Size;
+}
+
+//Output of list items to the console through a separator (don't use at)
+void List :: print_to_console()
+{
+	Node *node;								//List item
+	size_t i;								//For loop parameter
+
+	if (isEmpty())
+		throw out_of_range("The list is empty!");
+	else
+	{
+		node = First;
+		for (i = 0; i < Size; i++)
+		{
+			cout << "Element with ID -- " << i << " contains information -- " << *node->Information << endl;
+			node = node->Next;
+		}
+	}
+}
+
+//Removing all list items
+//bool flag -- flag specifying whether to display a message
+void List :: clear()
+{
+	if (!isEmpty())
+	{
+		while (!isEmpty())
+			pop_back();
+	}
+	else
+		throw out_of_range("The list is empty!");
+}
+
+//Replacing the element by index with the passed element
+/*
+	size_t id -- ID of the element for which you want to replace the value of the information field
+	int information -- new information for recording
+*/
+void List :: set(size_t id, int information)
+{
+	Node* elem = NULL;							//The element whose value we will change
+
+	elem = finder(id);
+	cout << "Present value is -- " << *elem->Information << endl;
+	cout << "New value is -- " << information << endl;
+
+	*elem->Information = information;
+}
+
+//Checking if the list is empty
+bool List :: isEmpty()
+{
+	bool answer;								//Program response about empty list
+
+	if (First == NULL)
+		answer = true;
+	else
+		answer = false;
+
+	return answer;
+}
+
+//Finds the item you want
+//size_t id -- ID of the element to return a pointer to
+List::Node* List :: finder(size_t id)
+{
+	Node *searched;								//Searched element
+	size_t i;									//For loop parameter
+
+	//If the ID is closer to the beginning, we go through the list from the beginning
+	if (id <= (Size / 2))
+	{
+		searched = First;
+		for (i = 0; i != id; i++)
+			searched = searched->Next;
+	}
+	//Otherwise from the end
+	else
+	{
+		searched = Last;
+		for (i = (Size - 1); i != id; i--)
+			searched = searched->Previous;
+	}
+
+	return searched;
+}
+
+//Entering and checking user selections
+size_t List :: check()
+{
+	size_t id;									//User selected ID
+	bool flag;									//Flag to determine whether to repeat the loop
+
+	do
+	{
+		//User input of the selected id is compared against all values ​​in the array
+		try
+		{
+			cout << "Choose the id you want (from 0 to " << (Size-1) << ") -- ";
+			cin >> id;
+			cin.ignore(32767, '\n');
+
+			((id > 0) && (id < Size)) ? flag = true : flag = false;
+
+			if (flag == false)
+				throw domain_error("Invalid ID. Try Again.");
+		}
+		catch (domain_error exeption)
+		{
+			cerr << "Error : " << exeption.what() << endl;
+		}
+	} while (flag == false);
+
+	return id;
+}
