@@ -7,15 +7,14 @@ using namespace std;
 
 int main()
 {
-	Head* head = NULL;								//The head of the original list
-	Head* list = NULL;								//Head of list to find occurrence
-
+	List* list1 = NULL;								//The head of the original list
+	List* list2 = NULL;								//Head of list to find occurrence
 	string answer;									//User selection in the main menu
 	size_t id;										//User selectable ID
 	int information;								//Variable to display the information field of the list item and store user input
 	
-	head = new Head;
-	if (head != NULL)
+	list1 = new List;
+	if (list1 != NULL)
 	{
 		do
 		{
@@ -59,7 +58,7 @@ int main()
 
 				try
 				{
-					head->push_back(information);
+					list1->push_back(information);
 				}
 				catch (out_of_range exeption)
 				{
@@ -76,7 +75,7 @@ int main()
 
 				try
 				{
-					head->push_front(information);
+					list1->push_front(information);
 				}
 				catch (out_of_range exeption)
 				{
@@ -90,7 +89,8 @@ int main()
 				cout << "Removing the last item in the list:" << endl;
 				try
 				{
-					head->pop_back(true);
+					list1->pop_back();
+					cout << "Item deleted successfully." << endl;
 				}
 				catch (out_of_range exeption)
 				{
@@ -104,7 +104,8 @@ int main()
 				cout << "Removing the first item in the list:" << endl;
 				try
 				{
-					head->pop_front();
+					list1->pop_front();
+					cout << "Item deleted successfully." << endl;
 				}
 				catch (out_of_range exeption)
 				{
@@ -116,7 +117,7 @@ int main()
 			case(5):
 				try
 				{
-					if (!head->isEmpty())
+					if (!list1->isEmpty())
 					{
 						system("cls");
 						cout << "Adding an item by ID:" << endl;
@@ -124,8 +125,8 @@ int main()
 						//Reading user input
 						information = input("Add a new element:");
 
-						id = head->check();
-						head->insert(id, information);
+						id = list1->check();
+						list1->insert(id, information);
 					}
 					else throw out_of_range("The list is empty!");
 				}
@@ -140,12 +141,12 @@ int main()
 			case(6):
 				try
 				{	
-					if (!head->isEmpty())
+					if (!list1->isEmpty())
 					{
 						system("cls");
 						cout << "Getting an item by ID:" << endl;
-						id = head->check();
-						information = head->at(id);
+						id = list1->check();
+						information = list1->at(id);
 						cout << "In the element with ID = " << id << " is stored -- " << information << endl;
 					}
 					else throw out_of_range("The list is empty!");
@@ -160,12 +161,12 @@ int main()
 			case(7):
 				try
 				{
-					if (!head->isEmpty())
+					if (!list1->isEmpty())
 					{
 						system("cls");
 						cout << "Removing an element by ID:" << endl;
-						id = head->check();
-						head->remove(id);
+						id = list1->check();
+						list1->remove(id);
 					}
 					else throw out_of_range("The list is empty!");
 				}
@@ -179,7 +180,7 @@ int main()
 			case(8):
 				system("cls");
 				cout << "Getting the size of a list:" << endl;
-				cout << "The size of list -- " << head->get_size() << endl;
+				cout << "The size of list -- " << list1->get_size() << endl;
 				delay();
 				break;
 			//-----------------------
@@ -188,7 +189,7 @@ int main()
 				cout << "The resulting list:" << endl;
 				try
 				{
-					head->print_to_console();
+					list1->print_to_console();
 				}
 				catch (out_of_range exeption)
 				{
@@ -202,7 +203,8 @@ int main()
 				cout << "Clearing the list:" << endl;
 				try
 				{
-					head->clear(true);
+					list1->clear();
+					cout << "The list was cleared successfully." << endl;
 				}
 				catch (out_of_range exeption)
 				{
@@ -214,15 +216,16 @@ int main()
 			case(11):
 				try
 				{
-					if (!head->isEmpty())
+					if (!list1->isEmpty())
 					{
 						system("cls");
 						cout << "Replacing an element by ID:" << endl;
-						id = head->check();
+						id = list1->check();
 						//Getting a new value for a list item
 						information = input("0");
-
-						head->set(id, information);
+						//Overwriting a value
+						list1->set(id, information);
+						cout << "Value rewritten successfully." << endl;
 					}
 					else throw out_of_range("The list is empty!");
 				}
@@ -236,31 +239,28 @@ int main()
 			case(12):
 				try
 				{
-					if (!head->isEmpty())
+					if (!list1->isEmpty())
 					{
 						system("cls");
-						list = new Head;
-						if (list != NULL)
+						list2 = new List;
+						if (list2 != NULL)
 						{
 							cout << "Finding the first occurrence of another list in a list:" << endl;
-
 							//Input
+							cout << "Enter the elements of the second list (elements are added to the end):" << endl;
 							do
 							{
-								cout << "Enter the elements of the second list (elements are added to the end) -- ";
-								cin >> information;
-								cin.ignore(32767, '\n');
-
+								information = input("0");
 								//Add an item to the second list
-								list->push_back(information);
-
+								list2->push_back(information);
 								cout << "Do you want to continue the input? (If you want type the 1) -- ";
 								cin >> information;
 								cout << endl;
-								cin.ignore(32767, '\n');
 							} while (information == 1);
+							
+							cin.ignore(32767, '\n');
 
-							id = find_first(head, list);
+							id = find_first(list1, list2);
 							cout << "Index of the first occurrence of the second list in the first = " << id << endl;
 						}
 						else
@@ -272,26 +272,30 @@ int main()
 				{
 					cerr << "Error: " << exeption.what() << endl;
 					
-					delete list;
-					list = NULL;
+					delete list2;
+					list2 = NULL;
 				}
 				catch (out_of_range exeption)
 				{
 					cerr << "Error: " << exeption.what() << endl;
-					if (list != NULL)
+					if (list2 != NULL)
 					{
-						delete list;
-						list = NULL;
+						list2->clear();
+						delete list2;
+						list2 = NULL;
 					}
 				}
-				
 				delay();
 				break;
 			//-----------------------
 			case(13):
 				cout << "Goodbye." << endl;
-				delete head;
-				head = NULL;
+				try 
+				{
+					list1->clear();
+				}
+				catch (out_of_range){}
+				delete list1;
 				break;
 			//-----------------------
 			default:
