@@ -1,0 +1,175 @@
+#include "prototypes.h"
+#include <iostream>
+#include <stdexcept>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+int main()
+{
+	int* array_int = NULL;						//Sortable array of type int
+	unsigned char* array_char = NULL;			//Sortable array of type char
+	unsigned int start;							//
+	unsigned int result;						//
+	size_t size;								//The size of the array to be sorted
+	size_t answer;								//User selections in the menu
+	size_t id;									//Found item index
+
+	//Changing the initial rand value using the system clock
+	srand((unsigned int)time(NULL));
+	//Selecting a sorting method followed by sorting
+	do
+	{
+		cout << "Choosing a sorting method:" << endl;
+		cout << "1) -- Binary Search" << endl;
+		cout << "2) -- Quick sort" << endl;
+		cout << "3) -- Bubble sort" << endl;
+		cout << "4) -- Bogosort" << endl;
+		cout << "5) -- Counting sort" << endl;
+		cout << "6) -- Completion of work" << endl;
+		answer = input("Your choice is -- ");
+		switch (answer)
+		{
+		//-------------------------
+		case(1):
+			try
+			{
+				system("cls");
+				cout << "Binary Search:" << endl;
+				size = input("Enter the size of the array you want to find the element in -- ");
+				array_int = array_creator(array_int, size);
+				QuickSort(array_int, 0, size - 1);
+				cout << "\nCreated array:" << endl;
+				print_array(array_int, size);
+				
+				id = abs(rand()) % size;
+				cout << "The program chose a random number with an index -- " << id << " (value = " << array_int[id] << ")" << endl;
+				id = BinarySearch(array_int, array_int[id], 0, size - 1);
+				
+				cout << "Searched element -- " << array_int[id] << endl;
+				delete[] array_int;
+				array_int = NULL;
+				delay();
+			}
+			catch (out_of_range exeption)
+			{
+				cerr << "Error: " << exeption.what() << endl;
+			}
+			break;
+		//-------------------------
+		case(2):
+			try
+			{
+				system("cls");
+				cout << "Quick sort:" << endl;
+				size = input("Enter the size of the array you want to sort -- ");
+				array_int = array_creator(array_int, size);
+				cout << "\Created array:" << endl;
+				print_array(array_int, size);
+				
+				start = clock();
+				QuickSort(array_int, 0, size-1);
+				result = clock() - start;
+				print_to_file(result, "Quick sort", size);
+				
+				cout << "Sorted array:" << endl;
+				print_array(array_int, size);
+				delete[] array_int;
+				array_int = NULL;
+				delay();
+			}
+			catch (out_of_range exeption)
+			{
+				cerr << "Error: " << exeption.what() << endl;
+			}
+			break;
+		//-------------------------
+		case(3):
+			try
+			{
+				system("cls");
+				cout << "Bubble sort:" << endl;
+				size = input("Enter the size of the array you want to sort -- ");
+				array_int = array_creator(array_int, size);
+				cout << "\nCreated array:" << endl;
+				print_array(array_int, size);
+				
+				start = clock();
+				BubbleSort(array_int, size);
+				result = clock() - start;
+				print_to_file(result, "Bubble sort", size);
+
+				cout << "Sorted array:" << endl;
+				print_array(array_int, size);
+				delete[] array_int;
+				array_int = NULL;
+				delay();
+			}
+			catch (out_of_range exeption)
+			{
+				cerr << "Error: " << exeption.what() << endl;
+			}
+			break;
+		//-------------------------
+		case(4):
+			try
+			{
+				system("cls");
+				cout << "Bogosort:" << endl;
+				size = input("Enter the size of the array you want to sort -- ");
+				array_int = array_creator(array_int, size);
+				cout << "\nCreated array:" << endl;
+				print_array(array_int, size);
+
+				BogoSort(array_int, size);
+
+				cout << "Sorted array:" << endl;
+				print_array(array_int, size);
+				delete[] array_int;
+				array_int = NULL;
+				delay();
+			}
+			catch (out_of_range exeption)
+			{
+				cerr << "Error: " << exeption.what() << endl;
+			}
+			break;
+		//-------------------------
+		case(5):
+			try
+			{
+				system("cls");
+				cout << "Counting sort:" << endl;
+				size = input("Enter the size of the array you want to sort -- ");
+				array_char = array_creator(array_char, size);
+				cout << "\nCreated array:" << endl;
+				print_array(array_char, size);
+
+				CountingSort(array_char, size);
+
+				cout << "Sorted array:" << endl;
+				print_array(array_char, size);
+				delete[] array_char;
+				array_char = NULL;
+				delay();
+			}
+			catch (out_of_range exeption)
+			{
+				cerr << "Error: " << exeption.what() << endl;
+			}
+			break;
+		//-------------------------
+		case(6):
+			cout << "Goodbye!" << endl;
+			break;
+		//-------------------------
+		default:
+			cout << "Invalid input. Try again." << endl;
+			system("pause");
+			system("cls");
+		}
+	} while (answer != 6);
+
+	return 0;
+}
