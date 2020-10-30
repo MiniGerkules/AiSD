@@ -1,0 +1,171 @@
+#pragma once
+
+#include <iostream>
+#include <ctime>
+
+//------------------------------------------------
+//Description of sorting functions
+
+/*
+	BinarySearch function
+	int* array -- the array in which we are looking for the desired element
+	int sought -- the sought value
+	size_t left_border -- the left border of the array to be sorted
+	size_t right_border -- the right border of the array to be sorted
+*/
+size_t BinarySearch(int* array, int sought, size_t left_border, size_t right_border);
+
+/*
+	QuickSort function
+	int* array -- the array to be sorted
+	size_t left_border -- the left border of the array to be sorted
+	size_t right_border -- the right border of the array to be sorted
+*/
+void QuickSort(int* array, size_t left_border, size_t right_border);
+
+/*
+	Bubble sort function
+	int* array -- the array to be sorted
+	size_t size -- array size
+*/
+void BubbleSort(int* array, size_t size);
+
+/*
+	BogoSort function
+	int* array -- the array to be sorted
+	size_t size -- array size
+*/
+void BogoSort(int* array, size_t size);
+
+/*
+	CountingSort function
+	unsigned char* array -- the array to be sorted
+	size_t size -- array size
+*/
+void CountingSort(unsigned char* array, size_t size);
+
+//------------------------------------------------
+//Description of auxiliary functions
+
+//A function to delay and clear the console
+void delay();
+
+/*
+	Swaps elements in places
+	int* first -- first number
+	int* second -- second number
+*/
+void swap(int* first, int* second);
+
+/*
+	User input
+	string str -- string to output
+*/
+size_t input(std::string str);
+
+/*
+	Function that fills an array with values
+	T* array -- the array to be filled with values
+	size_t size -- array size
+*/
+template <class T>
+void array_placeholder(T* array, size_t size)
+{
+	size_t i;										//For loop parameter
+
+	//Каким-то совершенно магическим способом оно работает только тогда, когда функция описана здесь, а не в cpp файле...
+	//Не понимаю почему ругается линковщик
+	//Он говорит, что существует ссылка на неразрешенный внешний символ
+
+	//Filling the array with random values
+	for (i = 0; i < size; i++)
+		//First we assign a value. If it is negative, then its complement will occur
+		array[i] = rand() % std::numeric_limits<T>::max();
+}
+
+/*
+	Creates an array of type int
+	T* array -- sortable array of type int or unsigned char
+	size_t size -- the size of the array to be sorted
+*/
+template <class T>
+T* array_creator(T* array, size_t size)
+{
+	size_t answer;								//User selection in the menu
+	size_t i;									//For loop parameter
+
+	//То же самое, что и с функцией array_placeholder
+
+	array = new T[size];
+	if (array != NULL)
+	{
+		//Entering array values
+		do
+		{
+			std::cout << "Do you want to fill the array manually or automatically?" << std::endl;
+			std::cout << "1) -- Enter data manually." << std::endl;
+			std::cout << "2) -- Enter data automatically." << std::endl;
+			answer = input("Your choice is -- ");
+
+			switch (answer)
+			{
+				//-------------------------
+			case(1):
+				std::cout << "Enter array values:" << std::endl;
+				for (i = 0; i < size; i++)
+					std::cin >> array[i];
+				break;
+				//-------------------------
+			case(2):
+				array_placeholder(array, size);
+				break;
+				//-------------------------
+			default:
+				std::cout << "Invalid input. Try again." << std::endl;
+			}
+		} while ((answer != 1) && (answer != 2));
+
+		return array;
+	}
+	else throw std::out_of_range("Memory not allocated.");
+}
+
+/*
+	Function that prints an array to the console
+	T* array -- the array to be printed to the console
+	size_t size -- array size
+*/
+template <class T>
+void print_array(T* array, size_t size)
+{
+	size_t i;										//For loop parameter
+	
+	//То же самое, что и с функцией array_placeholder
+
+	for (i = 0; i < size; i++)
+		std::cout << array[i] << " ";
+	std::cout << std::endl;
+}
+
+/*
+	Function that checks whether an array is sorted
+	T* array -- array to check for sorted
+	size_t size -- array size
+*/
+template <class T>
+bool inspector(T* array, size_t size);
+
+/*
+	Function that initializes an auxiliary array
+	size_t* array -- the array to be filled with null values
+	size_t size -- array size
+*/
+void initializer(size_t* array, size_t size);
+
+/*
+	Function that writes the running time of the algorithm to the file
+	clock_t result -- amount of time
+	string str -- algorithm name
+	size_t size -- array size
+*/
+void print_to_file(clock_t result, std::string str, size_t size);
