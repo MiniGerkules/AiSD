@@ -1,0 +1,100 @@
+#include <stdexcept>
+#include "CppUnitTest.h"
+#include "..\lab2_sort\prototypes.h"
+
+using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+
+namespace Testlab2
+{
+	TEST_CLASS(Testlab2)
+	{
+	public:
+		
+		TEST_METHOD(BinarySearch_test)
+		{
+			int array_10[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+			Assert::AreEqual(BinarySearch(array_10, 5, 0, 10), (size_t)5);
+		}
+
+		TEST_METHOD(QuickSort_test)
+		{
+			int* array_100 = new int[100];
+
+			array_placeholder(array_100, 100);
+			QuickSort(array_100, 0, 99);
+			Assert::AreEqual(inspector(array_100, 100), true);
+
+			delete[] array_100;
+		}
+
+		TEST_METHOD(BubbleSort_test)
+		{
+			int* array_100 = new int[100];
+
+			array_placeholder(array_100, 100);
+			BubbleSort(array_100, 100);
+			Assert::AreEqual(inspector(array_100, 100), true);
+
+			delete[] array_100;
+		}
+
+		TEST_METHOD(BogoSort_test)
+		{
+			int* array_5 = new int[5];
+
+			array_placeholder(array_5, 5);
+			BogoSort(array_5, 5);
+			Assert::AreEqual(inspector(array_5, 5), true);
+
+			delete[] array_5;
+		}
+
+		TEST_METHOD(CountingSort_test)
+		{
+			unsigned char* array_5 = new unsigned char[5];
+
+			//Почему-то линковщик не дает использовать функцию inspector
+
+			array_placeholder(array_5, 5);
+			CountingSort(array_5, 5);
+			Assert::AreEqual(array_5[0] < array_5[1], true);
+			Assert::AreEqual(array_5[1] < array_5[2], true);
+			Assert::AreEqual(array_5[2] < array_5[3], true);
+			Assert::AreEqual(array_5[3] < array_5[4], true);
+
+			delete[] array_5;
+		}
+
+		TEST_METHOD(swap_test)
+		{
+			int first = 5;
+			int second = 10;
+
+			swap(&first, &second);
+
+			Assert::AreEqual(first, 10);
+			Assert::AreEqual(second, 5);
+		}
+
+		TEST_METHOD(inspector_test)
+		{
+			int array_5[] = { 0, 1, 2, 3, 4 };
+
+			Assert::AreEqual(inspector(array_5, 5), true);
+		}
+
+		TEST_METHOD(initializer_test)
+		{
+			size_t* array_100 = new size_t[100];
+			size_t i;
+
+			initializer(array_100, 100);
+
+			for (i = 0; i < 100; i++)
+				Assert::AreEqual(array_100[i], (size_t)0);
+
+			delete[] array_100;
+		}
+	};
+}
