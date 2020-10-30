@@ -1,0 +1,332 @@
+#include "prototypes.h"
+#include <iostream>
+#include <limits>
+#include <stdexcept>
+#include <cstdlib>
+#include <fstream>
+#include <ctime>
+
+using namespace std;
+
+//------------------------------------------------
+//Implementing sorting functions
+
+/*
+	BinarySearch function
+	int* array -- the array in which we are looking for the desired element
+	int sought -- the sought value
+	size_t left_border -- the left border of the array to be sorted
+	size_t right_border -- the right border of the array to be sorted
+*/
+size_t BinarySearch(int* array, int sought, size_t left_border, size_t right_border)
+{
+	size_t mid;									//Index of the middle element of the array
+
+	mid = (left_border + right_border) / 2;
+
+	if (sought < array[mid]) BinarySearch(array, sought, left_border, mid - 1);
+	else if (sought > array[mid]) BinarySearch(array, sought, mid + 1, right_border);
+	else return mid;
+}
+
+/*
+	QuickSort function
+	int* array -- the array to be sorted
+	size_t left_border -- the left border of the array to be sorted
+	size_t right_border -- the right border of the array to be sorted
+*/
+void QuickSort(int* array, size_t left_border, size_t right_border)
+{
+	int pivot;									//Support element
+	size_t counter;								//Item count less than pivot
+	size_t i;									//For loop parameter
+	size_t j;									//For loop parameter
+	bool flag;									//Flag indicating the need to traverse the array
+	
+	pivot = array[right_border];
+	flag = true;
+	counter = 0;
+	for (i = left_border; ((i < right_border) && flag); i++)
+	{
+		if (array[i] > pivot)
+		{
+			flag = false;
+			for (j = i + 1; j < right_border; j++)
+			{
+				if (array[j] < pivot)
+				{
+					flag = true;
+					swap(array[j], array[i]);
+					j = right_border;
+				}
+			}
+		}
+		else counter++;
+	}
+
+	if ((counter == (right_border - left_border)) && (counter != 0))
+		QuickSort(array, left_border, right_border - 1);
+	else if (left_border != right_border)
+	{
+		swap(array[right_border], array[i - 1]);
+		QuickSort(array, i, right_border);
+		QuickSort(array, left_border, i - 1);
+	}
+}
+
+/*
+	Bubble sort function
+	int* array -- the array to be sorted
+	size_t size -- array size
+*/
+void BubbleSort(int* array, size_t size)
+{
+	size_t i;										//For loop parameter
+	size_t j;										//For loop parameter
+
+	for (i = 0; i < size - 1; i++)
+	{
+		for (j = 0; j < (size - i - 1); j++)
+			if (array[j] > array[j + 1])
+				swap(array[j], array[j + 1]);
+	}
+}
+
+/*
+	BogoSort function
+	int* array -- the array to be sorted
+	size_t size -- array size
+*/
+void BogoSort(int* array, size_t size)
+{
+	size_t i;									//Foor loop parameter
+
+	while (!inspector(array, size))
+	{
+		for (i = 0; i < size; ++i)
+			swap(array[i], array[abs(rand()) % size]);
+	}
+}
+
+/*
+	CountingSort function
+	unsigned char* array -- the array to be sorted
+	size_t size -- array size
+*/
+void CountingSort(unsigned char* array, size_t size)
+{
+	size_t* helper;								//Auxiliary array
+	int max;									//Maximum array element
+	size_t i;									//For loop parameter
+	size_t j;									//For loop parameter
+
+	//Finding the maximum element of an array
+	max = array[0];
+	for (i = 1; i < size; i++)
+		if (array[i] > max) max = array[i];
+
+	helper = new size_t[max + 1];
+	if (helper == NULL) throw out_of_range("Memory not allocated.");
+	else
+	{
+		//Initializing array elements with zero values
+		initializer(helper, max + 1);
+		//Increasing the counters of the number of occurrences of an element
+		for (i = 0; i < size; i++)
+			++helper[array[i]];
+
+		j = 0;
+		for (i = 0; i < size; i++)
+		{
+			if (helper[j] != 0)
+			{
+				array[i] = (unsigned char)j;
+				--helper[j];
+			}
+			else
+			{
+				++j;
+				--i;
+			}
+		}
+	}
+}
+
+//------------------------------------------------
+//Implementation of helper functions
+
+//A function to delay and clear the console
+void delay()
+{
+	system("pause");
+	system("cls");
+}
+
+/*
+	Swaps elements in places
+	int* first -- first number
+	int* second -- second number
+*/
+void swap(int* first, int* second)
+{
+	int helper;								//Stores the value of one of the elements
+
+	helper = *first;
+	*first = *second;
+	*second = helper;
+}
+
+/*
+	User input
+	string str -- string to output
+*/
+size_t input(string str)
+{
+	size_t answer;								//User input
+
+	cout << str;
+	cin >> answer;
+	if (cin.fail())
+		cin.clear();
+	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	cout << endl;
+
+	return answer;
+}
+
+/*
+	Creates an array of type int
+	T* array -- sortable array of type int or unsigned char
+	size_t size -- the size of the array to be sorted
+
+template <class T>
+T* array_creator(T* array, size_t size)
+{
+	size_t answer;								//User selection in the menu
+	size_t i;									//For loop parameter
+
+	array = new T[size];
+	if (array != NULL)
+	{
+		//Entering array values
+		do
+		{
+			cout << "Do you want to fill the array manually or automatically?" << endl;
+			cout << "1) -- Enter data manually." << endl;
+			cout << "2) -- Enter data automatically." << endl;
+			answer = input("Your choice is -- ");
+
+			switch (answer)
+			{
+				//-------------------------
+			case(1):
+				cout << "Enter array values:" << endl;
+				for (i = 0; i < size; i++)
+					cin >> array[i];
+				break;
+				//-------------------------
+			case(2):
+				array_placeholder(array, size);
+				break;
+				//-------------------------
+			default:
+				cout << "Invalid input. Try again." << endl;
+			}
+		} while ((answer != 1) && (answer != 2));
+	}
+	else throw out_of_range("Memory not allocated.");
+}*/
+
+/*
+	Function that fills an array with values
+	T* array -- the array to be filled with values
+	size_t size -- array size
+
+template <class T>
+void array_placeholder(T* array, size_t size)
+{
+	size_t i;										//For loop parameter
+
+	//Filling the array with random values
+	for (i = 0; i < size; i++)
+		//First we assign a value. If it is negative, then its complement will occur
+		array[i] = rand() % numeric_limits<T>::max();
+}*/
+
+/*
+	Function that prints an array to the console
+	T* array -- the array to be printed to the console
+	size_t size -- array size
+
+template <class T>
+void print_array(T* array, size_t size)
+{
+	size_t i;										//For loop parameter
+
+	for (i = 0; i < size; i++)
+		cout << array[i] << " ";
+	cout << endl;
+}*/
+
+/*
+	Function that checks whether an array is sorted
+	T* array -- array to check for sorted
+	size_t size -- array size
+*/
+template <class T>
+bool inspector(T* array, size_t size)
+{
+	bool answer;									//The program's response about the sorted array
+	size_t i;										//For loop parameter
+
+	//We consider that the list is sorted
+	answer = true;
+	for (i = 0; i < (size - 1); i++)
+		if (array[i] > array[i + 1])
+		{
+			answer = false;
+			i = size;
+		}
+
+	return answer;
+}
+
+/*
+	Function that initializes an auxiliary array
+	size_t* array -- the array to be filled with null values
+	size_t size -- array size
+*/
+void initializer(size_t* array, size_t size)
+{
+	size_t i;									//For loop parameter
+
+	for (i = 0; i < size; i++)
+		array[i] = 0;
+}
+
+/*
+	Function that writes the running time of the algorithm to the file
+	clock_t result -- amount of time
+	string str -- algorithm name
+	size_t size -- array size
+*/
+void print_to_file(clock_t result, string str, size_t size)
+{
+	ofstream file_txt;							//File with the txt extension, into which we will write the result
+	ofstream file_csv;							//File with the csv extension, into which we will write the result
+
+	file_txt.open("results.txt", ios_base::out | ios_base::app);
+	file_csv.open("results.csv", ios_base::out | ios_base::app);
+	if (file_txt.is_open())
+	{
+		file_txt << "The " << str << " worked for " << result << " milliseconds on an array of size " << size << endl;
+		file_txt.close();
+		if (file_csv.is_open())
+		{
+			file_csv << result << ";" << size << endl;
+			file_csv.close();
+		}
+		else throw out_of_range("Unable to open file");
+	}
+	else throw out_of_range("Unable to open file");
+}
