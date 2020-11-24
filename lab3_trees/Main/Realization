@@ -1,0 +1,672 @@
+#include "Prototypes.h"
+#include <iostream>
+#include <stdexcept>
+#include <math.h>
+
+using namespace std;
+
+//-----------------------------------------
+//Main functions
+//-----------------------------------------
+
+/*
+	Constructor of the Node class
+	Node* previous -- pointer to previous item
+	Node* right -- pointer to right child element
+	Node* left -- pointer to left child element
+	int key -- tree element value
+*/
+Binary_heap::Node::Node(Node* parent, Node* right, Node* left, int key)
+	: Parent(parent), Right (right), Left(left), Key(key)
+{}
+
+
+// Constructor of the Binary_heap class
+Binary_heap::Binary_heap()
+{
+	ID_last = 0;
+	Root = NULL;
+}
+
+// A function that returns the address of the root
+Binary_heap::Node* Binary_heap::address_of_the_root()
+{
+	return this->Root;
+}
+
+/*
+	The function checks whether there is an element in the tree with the passed key
+	int key -- key of the desired element
+*/
+bool Binary_heap::contains(int key)
+{
+	Node* sought = NULL;						// The element we are looking for
+
+	if (key < Root->Key)
+		throw out_of_range("Item doesn't exist!");
+
+	sought = search_by_key(Root, key);
+	if (sought->Key != key)
+		throw out_of_range("Item doesn't exist!");
+
+	return true;
+}
+
+/*
+	Adding an element to the tree by key (O(logN))
+	int key -- the index of the element
+*/
+void Binary_heap::insert(int key)
+{
+	Node* sought;										// The required free space to which we add a new element
+
+	if (ID_last == 0)
+	{
+		if (Root == NULL)
+		{
+			Root = new Node(NULL, NULL, NULL, key);
+			if (Root == NULL) throw out_of_range("Memory not allocated.");
+			creator_of_new_elements(Root);
+		}
+		else
+			creator_of_new_elements(Root);
+	}
+	else
+	{
+		sought = search_by_ID(Root, ID_last, level_identifier(ID_last));
+		sought->Key = key;
+		siftUp(sought);
+		creator_of_new_elements(sought);
+	}
+
+	ID_last++;
+}
+
+/*
+	The function removes a tree element by key
+	int key -- key of the desired element
+*/
+void Binary_heap::remove(int key)
+{
+	Node* sought = NULL;						// The element we are looking for
+	Node* last = NULL;							// Last element of the binary heap
+
+	if (key < Root->Key)
+		throw out_of_range("Item doesn't exist!");
+
+	sought = search_by_key(Root, key);
+	last = search_by_ID(Root, ID_last - 1, level_identifier(ID_last - 1));
+	my_swap(&sought->Key, &last->Key);
+
+	delete last->Left;
+	last->Left = NULL;
+	delete last->Right;
+	last->Right = NULL;
+	if (last != Root)
+	{
+		last->Key = INT_MIN;
+		siftDown(sought);
+	}
+	else
+	{
+		delete last;
+		Root = NULL;
+	}
+
+	ID_last--;
+}
+
+/*
+	Creating an iterator that implements breadth-first traversal methods
+	Binary_heap* heap -- binary heap
+*/
+int* Binary_heap::Iterator::create_bft_iterator(Binary_heap* heap)
+{
+	Node* current_node;							// Current tree element
+	Queue* helper = NULL;						// The queue with which we traverse the tree
+	int* result = NULL;							// Resulting path
+	size_t current_ID;							// ID of the current element
+	size_t i;									// Variable to write to array
+	size_t j;									// Variable for writing tree items to the queue
+
+	helper = new Queue;
+	if (helper == NULL)
+		throw out_of_range("Memory not allocated.");
+
+	result = new int[heap->ID_last];
+	if (result == NULL)
+	{
+		delete helper;
+		throw out_of_range("Memory not allocated.");
+	}
+
+	try
+	{
+		i = 0;
+		j = 0;
+		current_node = heap->Root;
+		helper->push(j);
+		while (!helper->is_empty())
+		{
+			current_ID = helper->pop();
+			current_node = heap->search_by_ID(heap->Root, current_ID, level_identifier(current_ID));
+			
+			if (current_node->Left->Key != INT_MIN)
+				helper->push(++j);
+
+			if (current_node->Right->Key != INT_MIN)
+				helper->push(++j);
+
+			result[i++] = current_node->Key;
+		}
+
+		delete helper;
+		helper = NULL;
+		return result;
+	}
+	catch (out_of_range exeption)
+	{
+		delete[] result;
+		while (!helper->is_empty())
+			helper->pop();
+		delete helper;
+		cerr << "Error: " << exeption.what() << endl;
+	}
+}
+
+/*
+	Creating an iterator that implements one of the depth-first traversal methods
+	Binary_heap* heap -- binary heap
+*/
+int* Binary_heap::Iterator::create_dft_iterator(Binary_heap* heap)
+{
+	Node* current_node;							// Current tree element
+	Stack* helper = NULL;						// The stack with which we traverse the tree
+	int* result = NULL;							// Resulting path
+	size_t current_ID;							// ID of the current element
+	size_t i;									// Variable to write to array
+
+	helper = new Stack;
+	if (helper == NULL)
+		throw out_of_range("Memory not allocated.");
+
+	result = new int[heap->ID_last];
+	if (result == NULL)
+	{
+		delete helper;
+		throw out_of_range("Memory not allocated.");
+	}
+
+	try
+	{
+		i = 0;
+		current_ID = 0;
+		current_node = heap->Root;
+		helper->push(current_ID);
+		while (!helper->is_empty())
+		{
+			result[i++] = current_node->Key;
+			
+			if (current_node->Right->Key != INT_MIN)
+				helper->push(2 * current_ID + 2);
+
+			if (current_node->Left->Key != INT_MIN)
+			{
+				current_node = current_node->Left;
+				current_ID = 2 * current_ID + 1;
+			}
+			else
+			{
+				current_ID = helper->pop();
+				current_node = heap->search_by_ID(heap->Root, current_ID, level_identifier(current_ID));
+			}
+		}
+
+		delete helper;
+		helper = NULL;
+		return result;
+	}
+	catch (out_of_range exeption)
+	{
+		delete[] result;
+		while (!helper->is_empty())
+			helper->pop();
+		delete helper;
+		cerr << "Error: " << exeption.what() << endl;
+	}
+}
+
+// Stack class constructor
+Binary_heap::Iterator::Stack::Stack()
+{
+	Top = NULL;
+}
+
+/*
+	Stack_item class constructor
+	Stack_item* next -- pointer to next item
+	int value -- the value of the information field of the stack member
+*/
+Binary_heap::Iterator::Stack::Stack_item::Stack_item(Stack_item* next, int value)
+	: Next(next), Value(value)
+{}
+
+/*
+	The function that adds an item to the stack
+	int value -- the value of the information field of the stack item
+*/
+void Binary_heap::Iterator::Stack::push(int value)
+{
+	Stack_item* new_item = NULL;				// New item being added to the stack
+
+	if (Top == NULL)
+	{
+		Top = new Stack_item(NULL, value);
+		if (Top == NULL)
+			throw out_of_range("Memory not allocated.");
+	}
+	else
+	{
+		new_item = new Stack_item(Top, value);
+		if (new_item == NULL)
+			throw out_of_range("Memory not allocated.");
+		Top = new_item;
+	}
+}
+
+// Function that returns the top of the stack
+int Binary_heap::Iterator::Stack::pop()
+{
+	Stack_item* deleted;						// Excluded stack item
+	int value;									// Stack item value
+
+	if (Top == NULL)
+		throw out_of_range("The stack is empty.");
+
+	value = Top->Value;
+	deleted = Top;
+	Top = Top->Next;
+	delete deleted;
+
+	return value;
+}
+
+// Function that check the stack for emptiness
+bool Binary_heap::Iterator::Stack::is_empty()
+{
+	bool answer;								// The program's response about the empty list
+
+	if (Top == NULL)
+		answer = true;
+	else
+		answer = false;
+
+	return answer;
+}
+
+// Queue class constructor
+Binary_heap::Iterator::Queue::Queue()
+{
+	Begin = NULL;
+	End = NULL;
+}
+
+/*
+	Queue_item class constructor
+	Queue_item* next -- pointer to next item
+	int value -- the value of the information field of the queue item
+*/
+Binary_heap::Iterator::Queue::Queue_item::Queue_item(Queue_item* next, int value)
+	: Next(next), Value(value)
+{}
+
+/*
+	The function that adds an item to the queue
+	int value -- the value of the information field of the queue item
+*/
+void Binary_heap::Iterator::Queue::push(int value)
+{
+	if (Begin == NULL)
+	{
+		Begin = new Queue_item(NULL, value);
+		if (Begin == NULL)
+			throw out_of_range("Memory not allocated.");
+		End = Begin;
+	}
+	else
+	{
+		End->Next = new Queue_item(NULL, value);
+		if (End->Next == NULL)
+			throw out_of_range("Memory not allocated.");
+		End = End->Next;
+	}
+}
+
+// Function that returns the top of the stack
+int Binary_heap::Iterator::Queue::pop()
+{
+	Queue_item* deleted;						// Excluded queue item
+	int value;									// Queue item value
+
+	if (Begin == NULL)
+		throw out_of_range("The queue is empty.");
+	
+	value = Begin->Value;
+	deleted = Begin;
+	Begin = Begin->Next;
+	delete deleted;
+
+	return value;
+}
+
+// Function that check the queue for emptiness (if empty -- true, otherwise -- false)
+bool Binary_heap::Iterator::Queue::is_empty()
+{
+	bool answer;								// The program's response about the empty list
+
+	if (Begin == NULL)
+		answer = true;
+	else
+		answer = false;
+
+	return answer;
+}
+
+
+//-----------------------------------------
+//Secondary functions
+//-----------------------------------------
+
+/*
+	A function that determines the level at which a tree element is located
+	size_t id -- ID of the element to search for
+*/
+size_t level_identifier(size_t id)
+{
+	size_t number;								// Maximum number of elements for the current number of levels
+	size_t level;								// The level at which the tree element is
+	
+	number = 1;
+	level = 0;
+	while (number < (id + 1))
+	{
+		level++;
+		number += size_of_level(level);
+	}
+
+	return level;
+}
+
+/*
+	A function that searches for the last entered element
+	Node* current -- current tree element
+	size_t ID -- ID of the element to search for
+	size_t current_level -- the number of levels below the current element
+*/
+Binary_heap::Node* Binary_heap::search_by_ID(Node* current, size_t ID, size_t current_level)
+{
+	size_t number_of_possible_elements;			// Maximum number of elements for the current number of levels
+	size_t size;								// Last level size
+
+	if (ID != 0)
+	{
+		size = size_of_level(current_level);
+		
+		number_of_possible_elements = element_counter(current_level);
+
+		if (ID < (number_of_possible_elements - size / 2))
+		{
+			current = current->Left;
+			ID -= counter_of_unnecessary_items(current_level - 1);
+		}
+		else
+		{
+			current = current->Right;
+			ID -= counter_of_unnecessary_items(current_level);
+		}
+
+		if (ID != 0)
+			current = search_by_ID(current, ID, --current_level);
+	}
+	
+	return current;
+}
+
+/*
+	A function that searches for the last entered element
+	Node* current -- current element of the binary heap
+	int key -- search item key
+*/
+Binary_heap::Node* Binary_heap::search_by_key(Node* current, int key)
+{
+	Node* transmitted = NULL;					// Storing the intermediate search result in the left subtree
+
+	if (current->Key != key)
+	{
+		if ((current->Left->Key <= key) && (current->Left->Key != INT_MIN))
+			transmitted = search_by_key(current->Left, key);
+		
+		if ((transmitted != NULL) && (transmitted->Key == key))
+			current = transmitted;
+
+		if ((current->Right->Key <= key) && (current->Right->Key != INT_MIN) && (current->Key != key))
+			transmitted = search_by_key(current->Right, key);
+		
+		if ((transmitted != NULL) && (transmitted->Key == key))
+			current = transmitted;
+	}
+	
+	return current;
+}
+
+/*
+	Function sifts downwards
+	Node* start -- the element from which we start sifting
+*/
+void Binary_heap::siftDown(Node* start)
+{
+	Node* min = NULL;							// Minimum of start->Left->Key and start->Right->Key
+
+	if ((start->Left->Key != INT_MIN) && (start->Right->Key == INT_MIN))
+	{
+		if (start->Key > start->Left->Key)
+			my_swap(&start->Key, &start->Left->Key);
+	}
+	else if ((start->Left->Key != INT_MIN) && (start->Right->Key != INT_MIN))
+	{
+		if (start->Left->Key > start->Right->Key)
+			min = start->Right;
+		else
+			min = start->Left;
+
+		if (start->Key > min->Key)
+		{
+			my_swap(&start->Key, &min->Key);
+			siftDown(min);
+		}
+	}
+}
+
+/*
+	The function implements sifting up
+	Node* start -- the element from which we start sifting
+*/
+void Binary_heap::siftUp(Node* start)
+{
+	if ((start->Parent != NULL) && (start->Key < start->Parent->Key))
+	{
+		my_swap(&start->Key, &start->Parent->Key);
+		siftUp(start->Parent);
+	}
+}
+
+// The function output a breadth-first search
+int* Binary_heap::output_BFT()
+{
+	Iterator iterator;
+	int* result;								// The array with the keys of all items in the tree
+	size_t i;									// For loop parameter
+
+	result = iterator.create_bft_iterator(this);
+	for (i = 0; i < ID_last; i++)
+		cout << result[i] << "  ";
+	
+	return result;
+}
+
+// The function output a depth-first traversal
+int* Binary_heap::output_DFT()
+{
+	Iterator iterator;
+	int* result;								// The array with the keys of all items in the tree
+	size_t i;									// For loop parameter
+
+	result = iterator.create_dft_iterator(this);
+	for (i = 0; i < ID_last; i++)
+		cout << result[i] << "  ";
+	
+	return result;
+}
+
+// Function that prints the tree to the console
+void Binary_heap::print_tree()
+{
+	Iterator iterator;
+	int* result;								// The array with the keys of all items in the tree
+	size_t level;								// The level of the output element
+	size_t counter;								// Maximum number of elements on the current number of levels
+	size_t i;									// For loop parameter
+
+	result = iterator.create_bft_iterator(this);
+
+	for (i = 0, level = 0, counter = 1; i < ID_last; i++)
+	{
+		if (i == counter)
+		{
+			counter += size_of_level(++level);
+			cout << '\n' << endl;
+		}
+
+		cout << result[i] << '\t';
+	}
+	cout << '\n' << endl;
+}
+
+/*
+	Function that allocates memory for future tree elements
+	Node* currnet -- an item to allocate memory for its descendants.
+*/
+void Binary_heap::creator_of_new_elements(Node* current)
+{
+	current->Right = new Node(current, NULL, NULL, INT_MIN);
+	if (current->Right == NULL)
+	{
+		throw out_of_range("Memory not allocated.");
+	}
+
+	current->Left = new Node(current, NULL, NULL, INT_MIN);
+	if (current->Left == NULL)
+	{
+		delete current->Right;
+		throw out_of_range("Memory not allocated.");
+	}
+}
+
+/*
+	The function frees memory from the elements of the binary heap
+	Node* node_current -- address of the current element
+*/
+void Binary_heap::tree_clearing(Node* node_current)
+{
+	if (node_current->Left != NULL)
+		tree_clearing(node_current->Left);
+	if (node_current->Right != NULL)
+		tree_clearing(node_current->Right);
+
+	delete node_current;
+}
+
+/*
+	A function that calculates how many IDs must be subtracted from the old ID to go to the new tree
+	size_t level -- the last level of the current tree
+*/
+size_t element_counter(size_t level)
+{
+	size_t result;								// Number of IDs to be subtracted
+
+	result = 1;
+	while (level != 0)
+		result += size_of_level(level--);
+
+	return result;
+}
+
+/*
+	A function that counts the maximum number of elements for the current number of levels
+	size_t level -- the last level of the current tree
+*/
+size_t counter_of_unnecessary_items(size_t level)
+{
+	size_t result;								// Number of IDs to be subtracted
+
+	result = 1;
+	while (level != 0)
+		result += size_of_level(level--) / 2;
+
+	return result;
+}
+
+/*
+	Function that counts the number of elements at a level
+	size_t level -- the level at which you want to count the number of items
+*/
+size_t size_of_level(size_t level)
+{
+	size_t answer;								// Amount of elements
+	size_t i;									// Foor loop parameter
+
+	answer = 1;
+	for (i = 0; i < level; i++)
+		answer *= 2;
+
+	return answer;
+}
+
+/*
+	User input
+	string str -- string to output
+*/
+size_t input(string str)
+{
+	size_t answer;								// User input
+
+	cout << str;
+	cin >> answer;
+	if (cin.fail())
+		cin.clear();
+	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	cout << endl;
+
+	return answer;
+}
+
+/*
+	Function that changes the values of two tree elements
+	int* first -- the first number
+	int* second -- the second number
+*/
+void my_swap(int* first, int* second)
+{
+	int helper;
+
+	helper = *first;
+	*first = *second;
+	*second = helper;
+}
+
+// A function that delays the program and clears the console
+void delay()
+{
+	system("pause");
+	system("cls");
+}
