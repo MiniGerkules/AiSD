@@ -1,0 +1,134 @@
+#include <iostream>
+#include "Prototypes.h"
+
+using namespace std;
+
+int main()
+{
+    Binary_heap* heap = NULL;
+    int key;                                    // The key passed to the function
+    size_t answer;                              // User selection in the main menu
+
+    try
+    {
+        heap = new Binary_heap;
+
+        if (heap == NULL) 
+            throw out_of_range("Memory not allocated");
+
+        do
+        {
+            try
+            {
+                cout << "Menu:" << endl;
+                cout << "1) -- Append item to binary heap." << endl;
+                cout << "2) -- Find an element in the binary heap by key." << endl;
+                cout << "3) -- Remove a binary heap element by key." << endl;
+                cout << "4) -- Walk the binary heap in depth." << endl;
+                cout << "5) -- Walk the binary heap wide." << endl;
+                cout << "6) -- Display the binary heap on the screen." << endl;
+                cout << "7) -- Completion of work." << endl;
+                answer = input("Your choice is -- ");
+                switch (answer)
+                {
+                    //----------------------------------
+                case(1):
+                    system("cls");
+                    cout << "Addind an element to the tree:\n" << endl;
+                    key = input("Enter the key of the item -- ");
+                    heap->insert(key);
+                    cout << "Item added successfully." << endl;
+                    delay();
+                    break;
+                    //----------------------------------
+                case(2):
+                    if (heap->address_of_the_root() != NULL)
+                    {
+                        system("cls");
+                        cout << "Search for an element in the binary heap by key:" << endl;
+                        key = input("Enter the key of the item you want to search for -- ");
+                        if (heap->contains(key))
+                            cout << "Element " << key << " is in the binary heap." << endl;
+                        else
+                            cout << "Element " << key << " is missing from the binary heap." << endl;
+                        delay();
+                    }
+                    else throw out_of_range("The binary heap is empty!");
+                    break;
+                    //----------------------------------
+                case(3):
+                    if (heap->address_of_the_root() != NULL)
+                    {
+                        system("cls");
+                        cout << "Deleting a binary heap element by key:" << endl;
+                        key = input("Enter the key of the item you want to remove -- ");
+                        heap->remove(key);
+                        cout << "Item deleted sucessfully." << endl;
+                        delay();
+                    }
+                    else throw out_of_range("The binary heap is empty!");
+                    break;
+                    //----------------------------------
+                case(4):
+                    if (heap->address_of_the_root() != NULL)
+                    {
+                        system("cls");
+                        cout << "Walking the tree in depth:" << endl;
+                        heap->output_DFT();
+                        cout << endl;
+                        delay();
+                    }
+                    else throw out_of_range("The binary heap is empty!");
+                    break;
+                    //----------------------------------
+                case(5):
+                    if (heap->address_of_the_root() != NULL)
+                    {
+                        system("cls");
+                        cout << "Walking the tree in width:" << endl;
+                        heap->output_BFT();
+                        cout << endl;
+                        delay();
+                    }
+                    else throw out_of_range("The binary heap is empty!");
+                    break;
+                    //----------------------------------
+                case(6):
+                    if (heap->address_of_the_root() != NULL)
+                    {
+                        system("cls");
+                        cout << "Introduced tree:" << endl;
+                        heap->print_tree();
+                        delay();
+                    }
+                    else throw out_of_range("The binary heap is empty!");
+                    break;
+                    //----------------------------------
+                case(7):
+                    cout << "Goodbye!" << endl;
+                    if (heap->address_of_the_root() != NULL)
+                        heap->tree_clearing(heap->address_of_the_root());
+                    delete heap;
+                    heap = NULL;
+                    break;
+                    //----------------------------------
+                default:
+                    cout << "Incorrect input. Try again." << endl;
+                    delay();
+
+                }
+            }
+            catch (out_of_range exeption)
+            {
+                cerr << "Error: " << exeption.what() << endl;
+                delay();
+            }
+        } while (answer != 7);
+    }
+    catch (out_of_range exeption)
+    {
+        cerr << "Error: " << exeption.what() << endl;
+    }
+
+    return 0;
+}
