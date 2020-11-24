@@ -1,0 +1,237 @@
+#pragma once
+
+#include <iostream>
+
+class Binary_heap
+{
+private:
+	// Class describing the node element of the tree
+	class Node
+	{
+	public:
+		Node* Parent;					// Father of the tree element
+		Node* Right;					// Right child of an element
+		Node* Left;						// Left child of an element
+		int Key;						// Key of the tree element
+
+		/*
+			Constructor of the Node class
+			Node* previous -- pointer to previous item
+			Node* right -- pointer to right child element
+			Node* left -- pointer to left child element
+			int key -- tree element value
+		*/
+		Node(Node* parent, Node* right, Node* left, int key);
+	};
+
+	// Class describing the iterator
+	class Iterator
+	{
+	private:
+		// Class describing the STACK data structure
+		class Stack
+		{
+		private:
+			// Class describing the queue element
+			class Stack_item
+			{
+			public:
+				Stack_item* Next;						// Next item in the stack
+				size_t Value;							// Stack item information field
+
+				/*
+					Stack_item class constructor
+					Stack_item* next -- pointer to next item
+					int value -- the value of the information field of the stack member
+				*/
+				Stack_item(Stack_item* next, int value);
+			};
+
+			Stack_item* Top;							// Top of stack
+		
+		public:
+			// Stack class constructor
+			Stack();
+
+			/*
+				The function that adds an item to the stack
+				int value -- the value of the information field of the stack item
+			*/
+			void push(int value);
+
+			// Function that returns the top of the stack
+			int pop();
+
+			// Function that check the stack for emptiness (if empty -- true, otherwise -- false)
+			bool is_empty();
+		};
+
+		// Class that describes the data structure of the QUEUE
+		class Queue
+		{
+		private:
+			// Class describing the queue element
+			class Queue_item
+			{
+			public:
+				Queue_item* Next;						// Next item in the queue
+				size_t Value;							// Queue item information field
+
+				/*
+					Queue_item class constructor
+					Queue_item* next -- pointer to next item
+					int value -- the value of the information field of the queue member
+				*/
+				Queue_item(Queue_item* next, int value);
+			};
+
+			Queue_item* Begin;							// Beginning of the queue
+			Queue_item* End;							// End of the queue
+
+		public:
+			// Queue class constructor
+			Queue();
+			
+			/*
+				A function that adds an item to the queue
+				int value -- the value of the information field of the queue item
+			*/
+			void push(int value);
+
+			// A function that returns an element from the beginning of the queue
+			int pop();
+
+			// Function that check the queue for emptiness (if empty -- true, otherwise -- false)
+			bool is_empty();
+		};
+
+	public:
+		/*
+			Creating an iterator that implements breadth-first traversal methods
+			Binary_heap* heap -- binary heap
+		*/
+		int* create_bft_iterator(Binary_heap* heap);
+
+		/*
+			Creating an iterator that implements one of the depth-first traversal methods
+			Binary_heap* heap -- binary heap
+		*/
+		int* create_dft_iterator(Binary_heap* heap);
+	};
+	
+	Node* Root;							// Root element
+	size_t ID_last;						// ID of the last added item (not the key)
+
+public:
+	// Constructor of the Binary_heap class
+	Binary_heap();
+
+	// A function that returns the address of the root
+	Node* address_of_the_root();
+	
+	/*
+		The function checks whether there is an element in the tree with the passed key
+		int key -- key of the desired element
+	*/
+	bool contains(int key);
+	
+	/*
+		Adding an element to the tree by key (O(logN))
+		int key -- key of the desired element
+	*/
+	void insert(int key);
+	
+	/*
+		The function removes a tree element by key
+		int key -- key of the desired element
+	*/
+	void remove(int key);
+
+	/*
+		A function that searches for the last entered element
+		Node* current -- current tree element
+		size_t ID -- ID of the element to search for
+		size_t current_level -- the number of levels below the current element
+	*/
+	Node* search_by_ID(Node* current, size_t ID, size_t current_level);
+
+	/*
+		A function that searches for the last entered element
+		Node* current -- current element of the binary heap
+		int key -- search item key
+	*/
+	Node* search_by_key(Node* current, int key);
+	
+	/*
+		Function sifts downwards
+		Node* start -- the element from which we start sifting
+	*/
+	void siftDown(Node* start);
+	
+	/*
+		The function implements sifting up
+		Node* start -- the element from which we start sifting
+	*/
+	void siftUp(Node* start);
+
+	// The function return a breadth-first traversal
+	int* output_BFT();
+
+	// The function return a depth-first traversal
+	int* output_DFT();
+
+	// Function that prints the tree to the console
+	void print_tree();
+
+	/*
+		Function that allocates memory for future tree elements
+		Node* currnet -- an item to allocate memory for its descendants.
+	*/
+	void creator_of_new_elements(Node* current);
+
+	/*
+		The function frees memory from the elements of the binary heap
+		Node* node_current -- address of the current element
+	*/
+	void tree_clearing(Node* node_current);
+};
+
+/*
+	A function that determines the level at which a tree element is located
+	size_t id -- ID of the element to search for
+*/
+size_t level_identifier(size_t id);
+
+/*
+	A function that counts the maximum number of elements for the current number of levels
+	size_t level -- the last level of the current tree
+*/
+size_t element_counter(size_t level);
+
+/*
+	A function that calculates how many IDs must be subtracted from the old ID to go to the new tree
+	size_t level -- the last level of the current tree
+*/
+size_t counter_of_unnecessary_items(size_t level);
+
+/*
+	Function that counts the number of elements at a level
+	size_t level -- the level at which you want to count the number of items
+*/
+size_t size_of_level(size_t level);
+
+/*
+	User input
+	string str -- string to output
+*/
+size_t input(std::string str);
+
+/*
+	Function that changes the values of two tree elements
+	int* first -- the first number
+	int* second -- the second number
+*/
+void my_swap(int* first, int* second);
+
+// A function that delays the program and clears the console
+void delay();
