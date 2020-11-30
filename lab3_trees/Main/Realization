@@ -277,6 +277,15 @@ Node* Binary_heap::search_by_ID(Node* current, size_t ID, size_t current_level)
 	size_t number_of_possible_elements;			// Maximum number of elements for the current number of levels
 	size_t size;								// Last level size
 
+	// ID -- the ordinal number of the binary heap element. For example
+	/*
+		The heap					The ID
+		3							0
+		4	7						1	2
+		9							3
+
+	*/
+
 	if (ID != 0)
 	{
 		size = size_of_level(current_level);
