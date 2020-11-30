@@ -1,0 +1,46 @@
+#pragma once
+
+#include "Prototypes.h"
+#include "Node.h"
+#include <stdexcept>
+#include <iostream>
+
+// Class describing the STACK data structure
+class Stack
+{
+private:
+	// Class describing the queue element
+	class Stack_item
+	{
+	public:
+		Stack_item* Next;						// Next item in the stack
+		Node* Value;				// Stack item information field
+
+		/*
+			Stack_item class constructor
+			Stack_item* next -- pointer to next item
+			Binary_heap::Node* value -- the value of the information field of the stack member
+		*/
+		Stack_item(Stack_item* next, Node* value);
+	};
+
+	Stack_item* Top;							// Top of stack
+
+public:
+	friend class DFT_iterator;
+
+	// Stack class constructor
+	Stack();
+
+	/*
+		The function that adds an item to the stack
+		Binary_heap::Node* value -- the value of the information field of the stack item
+	*/
+	void push(Node* value);
+
+	// Function that returns the top of the stack
+	Node* pop();
+
+	// Function that check the stack for emptiness (if empty -- true, otherwise -- false)
+	bool is_empty();
+};
