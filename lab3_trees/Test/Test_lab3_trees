@@ -19,15 +19,40 @@ namespace Testlab3trees
 		TEST_METHOD_CLEANUP(cleanUp)
 		{
 			//Freeing memory from the binary heap
-			if (heap->address_of_the_root() != NULL)
-				heap->tree_clearing(heap->address_of_the_root());
-
 			delete heap;
 		}
 
 		TEST_METHOD(create_bft_iterator_test)
 		{
-			int* function_result;
+			Iterator* bft;
+			
+			try
+			{
+				bft = heap->create_bft_iterator();
+			}
+			catch (std::out_of_range(exeption))
+			{
+				Assert::AreEqual("There are no elements in the binary heap!", exeption.what());
+			}
+		}
+
+		TEST_METHOD(create_dft_iterator_test)
+		{
+			Iterator* dft;
+
+			try
+			{
+				dft = heap->create_dft_iterator();
+			}
+			catch (std::out_of_range(exeption))
+			{
+				Assert::AreEqual("There are no elements in the binary heap!", exeption.what());
+			}
+		}
+
+		TEST_METHOD(bft_iterator_test)
+		{
+			Iterator* bft;
 			int abs_result[32] = { 1, 3, 5, 7, 9, 12, 17, 21, 25, 30, 41, 54, 60, 61, 70, 72, 73, 76, 79, 84, 88, 90, 96, 97,
 									98, 99, 100, 102, 107, 110, 115, 134 };
 			size_t i;							// For loop parameter
@@ -61,18 +86,20 @@ namespace Testlab3trees
 			heap->insert(100);
 			heap->insert(102);
 			heap->insert(107);
-			heap->insert(110);
+			heap->insert(110); 
 			heap->insert(115);
 			heap->insert(134);
 
-			function_result = heap->output_BFT();
+			bft = heap->create_bft_iterator();
 			for (i = 0; i < 32; i++)
-				Assert::AreEqual(abs_result[i], function_result[i]);
+				Assert::AreEqual(abs_result[i], bft->next());
+
+			delete bft;
 		}
 
-		TEST_METHOD(create_dft_iterator_test)
+		TEST_METHOD(dft_iterator_test)
 		{
-			int* function_result;
+			Iterator* dft;
 			int abs_result[32] = {1, 3, 7, 21, 72, 134, 73, 25, 76, 79, 9, 30, 84, 88, 41, 90, 96, 5, 12, 54, 97, 98, 60, 99, 
 									100, 17, 61, 102, 107, 70, 110, 115 };
 			size_t i;							// For loop parameter
@@ -110,9 +137,11 @@ namespace Testlab3trees
 			heap->insert(115);
 			heap->insert(134);
 
-			function_result = heap->output_DFT();
+			dft = heap->create_dft_iterator();
 			for (i = 0; i < 32; i++)
-				Assert::AreEqual(abs_result[i], function_result[i]);
+				Assert::AreEqual(abs_result[i], dft->next());
+
+			delete dft;
 		}
 
 		TEST_METHOD(address_of_the_root_test)
