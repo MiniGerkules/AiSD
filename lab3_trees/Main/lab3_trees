@@ -106,8 +106,6 @@ int main()
                     //----------------------------------
                 case(7):
                     cout << "Goodbye!" << endl;
-                    if (heap->address_of_the_root() != NULL)
-                        heap->tree_clearing(heap->address_of_the_root());
                     delete heap;
                     heap = NULL;
                     break;
