@@ -1,0 +1,24 @@
+#pragma once
+
+// Class describing the node element of the tree
+class Node
+{
+public:
+	Node* Parent;					// Father of the tree element
+	Node* Right;					// Right child of an element
+	Node* Left;						// Left child of an element
+	int Key;						// Key of the tree element
+
+	/*
+		Constructor of the Node class
+		Node* previous -- pointer to previous item
+		Node* right -- pointer to right child element
+		Node* left -- pointer to left child element
+		int key -- tree element value
+	*/
+	Node(Node* parent, Node* right, Node* left, int key);
+
+	friend class Binary_heap;
+	friend class Stack;
+	friend class Queue;
+};
