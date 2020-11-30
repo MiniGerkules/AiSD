@@ -1,122 +1,58 @@
 #pragma once
 
 #include <iostream>
+#include "Queue.h"
+#include "Stack.h"
+#include "Node.h"
+#include "Iterator.h"
 
 class Binary_heap
 {
 private:
-	// Class describing the node element of the tree
-	class Node
-	{
-	public:
-		Node* Parent;					// Father of the tree element
-		Node* Right;					// Right child of an element
-		Node* Left;						// Left child of an element
-		int Key;						// Key of the tree element
-
-		/*
-			Constructor of the Node class
-			Node* previous -- pointer to previous item
-			Node* right -- pointer to right child element
-			Node* left -- pointer to left child element
-			int key -- tree element value
-		*/
-		Node(Node* parent, Node* right, Node* left, int key);
-	};
-
-	// Class describing the iterator
-	class Iterator
+	// Class describing the breadth-first iterator
+	class BFT_iterator : public Iterator
 	{
 	private:
-		// Class describing the STACK data structure
-		class Stack
-		{
-		private:
-			// Class describing the queue element
-			class Stack_item
-			{
-			public:
-				Stack_item* Next;						// Next item in the stack
-				size_t Value;							// Stack item information field
-
-				/*
-					Stack_item class constructor
-					Stack_item* next -- pointer to next item
-					int value -- the value of the information field of the stack member
-				*/
-				Stack_item(Stack_item* next, int value);
-			};
-
-			Stack_item* Top;							// Top of stack
-		
-		public:
-			// Stack class constructor
-			Stack();
-
-			/*
-				The function that adds an item to the stack
-				int value -- the value of the information field of the stack item
-			*/
-			void push(int value);
-
-			// Function that returns the top of the stack
-			int pop();
-
-			// Function that check the stack for emptiness (if empty -- true, otherwise -- false)
-			bool is_empty();
-		};
-
-		// Class that describes the data structure of the QUEUE
-		class Queue
-		{
-		private:
-			// Class describing the queue element
-			class Queue_item
-			{
-			public:
-				Queue_item* Next;						// Next item in the queue
-				size_t Value;							// Queue item information field
-
-				/*
-					Queue_item class constructor
-					Queue_item* next -- pointer to next item
-					int value -- the value of the information field of the queue member
-				*/
-				Queue_item(Queue_item* next, int value);
-			};
-
-			Queue_item* Begin;							// Beginning of the queue
-			Queue_item* End;							// End of the queue
-
-		public:
-			// Queue class constructor
-			Queue();
-			
-			/*
-				A function that adds an item to the queue
-				int value -- the value of the information field of the queue item
-			*/
-			void push(int value);
-
-			// A function that returns an element from the beginning of the queue
-			int pop();
-
-			// Function that check the queue for emptiness (if empty -- true, otherwise -- false)
-			bool is_empty();
-		};
-
+		Queue queue;						// The queue to which we will add items
+		Node* current;						// Current crawled item
 	public:
 		/*
-			Creating an iterator that implements breadth-first traversal methods
-			Binary_heap* heap -- binary heap
+			BFT_iterator class constructor
+			Node* start -- binary heap root
 		*/
-		int* create_bft_iterator(Binary_heap* heap);
+		BFT_iterator(Node* start);
 
+		//Destructor of the BFT_iterator class
+		~BFT_iterator();
+
+		// The method will know if there is a next item
+		bool has_next() override;
+
+		// Move to next item
+		int next() override;
+	};
+
+	// A class describing a depth-first iterator
+	class DFT_iterator : public Iterator
+	{
+	private:
+		Stack stack;						// The stack to which we will add items
+		Node* current;						// Current crawled item
+	public:
 		/*
-			Creating an iterator that implements one of the depth-first traversal methods
-			Binary_heap* heap -- binary heap
+			DFT_iterator class constructor
+			Node* start -- binary heap root
 		*/
-		int* create_dft_iterator(Binary_heap* heap);
+		DFT_iterator(Node* start);
+
+		//Destructor of the DFT_iterator class
+		~DFT_iterator();
+
+		// The method will know if there is a next item
+		bool has_next() override;
+
+		// Move to next item
+		int next() override;
 	};
 	
 	Node* Root;							// Root element
@@ -126,8 +62,35 @@ public:
 	// Constructor of the Binary_heap class
 	Binary_heap();
 
+	// Destructor of the Binary_heap class
+	~Binary_heap();
+
 	// A function that returns the address of the root
 	Node* address_of_the_root();
+
+	/*
+		Creating an iterator that implements breadth-first traversal methods
+		Binary_heap* heap -- binary heap
+	*/
+	Iterator* create_bft_iterator();
+
+	/*
+		Creating an iterator that implements one of the depth-first traversal methods
+		Binary_heap* heap -- binary heap
+	*/
+	Iterator* create_dft_iterator();
+
+	/*
+		The function return a breadth-first traversal
+		Binary_heap* heap -- pointer to the heap in which we will perform breadth-first traversal
+	*/
+	void output_BFT();
+
+	/*
+		The function return a depth-first traversal
+		Binary_heap* heap -- pointer to the heap in which we will perform depth-first traversal
+	*/
+	void output_DFT();
 	
 	/*
 		The function checks whether there is an element in the tree with the passed key
@@ -173,12 +136,6 @@ public:
 		Node* start -- the element from which we start sifting
 	*/
 	void siftUp(Node* start);
-
-	// The function return a breadth-first traversal
-	int* output_BFT();
-
-	// The function return a depth-first traversal
-	int* output_DFT();
 
 	// Function that prints the tree to the console
 	void print_tree();
