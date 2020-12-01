@@ -188,21 +188,6 @@ namespace Testlab3trees
 			Assert::AreEqual(heap->address_of_the_root()->Left->Left->Key, 17);
 		}
 
-		TEST_METHOD(search_by_ID_test)
-		{
-			heap->insert(1);
-			heap->insert(3);
-			heap->insert(5);
-			heap->insert(7);
-			heap->insert(9);
-			heap->insert(12);
-			heap->insert(17);
-
-			Assert::AreEqual(heap->address_of_the_root()->Key, heap->search_by_ID(heap->address_of_the_root(), 0, 0)->Key);
-			Assert::AreEqual(heap->address_of_the_root()->Left->Key, heap->search_by_ID(heap->address_of_the_root(), 1, 1)->Key);
-			Assert::AreEqual(heap->address_of_the_root()->Right->Key, heap->search_by_ID(heap->address_of_the_root(), 2, 1)->Key);
-		}
-
 		TEST_METHOD(search_by_key_test)
 		{
 			heap->insert(1);
