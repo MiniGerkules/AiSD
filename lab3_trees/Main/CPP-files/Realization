@@ -30,13 +30,17 @@ Node::Node(Node* parent, Node* right, Node* left, int key)
 Binary_heap::BFT_iterator::BFT_iterator(Node* start)
 {
 	current = start;
-	queue.push(start);
+	queue = new Queue;
+	if (queue == NULL)
+		throw out_of_range("Memory allocation error!");
+	queue->push(start);
 }
 
 //Destructor of the BFT_iterator class
 Binary_heap::BFT_iterator::~BFT_iterator()
 {
 	current = NULL;
+	delete queue;
 }
 
 
@@ -47,13 +51,17 @@ Binary_heap::BFT_iterator::~BFT_iterator()
 Binary_heap::DFT_iterator::DFT_iterator(Node* start)
 {
 	current = start;
-	stack.push(start);
+	stack = new Stack;
+	if (stack == NULL)
+		throw out_of_range("Memory allocation error!");
+	stack->push(start);
 }
 
 //Destructor of the DFT_iterator class
 Binary_heap::DFT_iterator::~DFT_iterator()
 {
 	current = NULL;
+	delete stack;
 }
 
 // Constructor of the Binary_heap class
@@ -174,7 +182,7 @@ bool Binary_heap::BFT_iterator::has_next()
 {
 	bool flag;									// The program's response as to whether the next item is
 	
-	if (!queue.is_empty())
+	if (!queue->is_empty())
 		flag = true;
 	else
 		flag = false;
@@ -187,11 +195,11 @@ int Binary_heap::BFT_iterator::next()
 {
 	if (has_next())
 	{
-		current = queue.pop();
+		current = queue->pop();
 		if (current->Left->Key != INT_MIN)
-			queue.push(current->Left);
+			queue->push(current->Left);
 		if (current->Right->Key != INT_MIN)
-			queue.push(current->Right);
+			queue->push(current->Right);
 
 		return current->Key;
 	}
@@ -213,7 +221,7 @@ bool Binary_heap::DFT_iterator::has_next()
 {
 	bool flag;									// The program's response as to whether the next item is
 
-	if (!stack.is_empty())
+	if (!stack->is_empty())
 		flag = true;
 	else
 		flag = false;
@@ -229,14 +237,14 @@ int Binary_heap::DFT_iterator::next()
 	if (has_next())
 	{
 		if (current->Right->Key != INT_MIN)
-			stack.push(current->Right);
+			stack->push(current->Right);
 
 		value = current->Key;
 
 		if (current->Left->Key != INT_MIN)
 			current = current->Left;
 		else
-			current = stack.pop();
+			current = stack->pop();
 
 		return value;
 	}
@@ -564,6 +572,15 @@ Stack::Stack()
 	Top = NULL;
 }
 
+// Destructor of the Stack class
+Stack::~Stack()
+{
+	while (Top != NULL)
+		pop();
+
+	Top = NULL;
+}
+
 /*
 	Stack_item class constructor
 	Stack_item* next -- pointer to next item
@@ -633,6 +650,16 @@ bool Stack::is_empty()
 // Queue class constructor
 Queue::Queue()
 {
+	Begin = NULL;
+	End = NULL;
+}
+
+// Destructor of the Stack class
+Queue::~Queue()
+{
+	while (Begin != NULL)
+		pop();
+	
 	Begin = NULL;
 	End = NULL;
 }
