@@ -33,7 +33,7 @@ public:
 	// Queue class constructor
 	Queue();
 
-	// Destructor of the Stack class
+	// Destructor of the Queue class
 	~Queue();
 
 	/*
