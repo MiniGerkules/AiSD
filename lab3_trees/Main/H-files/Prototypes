@@ -13,7 +13,7 @@ private:
 	class BFT_iterator : public Iterator
 	{
 	private:
-		Queue queue;						// The queue to which we will add items
+		Queue* queue;						// The queue to which we will add items
 		Node* current;						// Current crawled item
 	public:
 		/*
@@ -36,7 +36,7 @@ private:
 	class DFT_iterator : public Iterator
 	{
 	private:
-		Stack stack;						// The stack to which we will add items
+		Stack* stack;						// The stack to which we will add items
 		Node* current;						// Current crawled item
 	public:
 		/*
@@ -57,6 +57,36 @@ private:
 	
 	Node* Root;							// Root element
 	size_t ID_last;						// ID of the last added item (not the key)
+
+	//------------------------------------------------------------------
+	// Technical methods
+	//------------------------------------------------------------------
+
+	/*
+		A function that searches for the last entered element
+		Node* current -- current tree element
+		size_t ID -- ID of the element to search for
+		size_t current_level -- the number of levels below the current element
+	*/
+	Node* search_by_ID(Node* current, size_t ID, size_t current_level);
+
+	/*
+		Function sifts downwards
+		Node* start -- the element from which we start sifting
+	*/
+	void siftDown(Node* start);
+
+	/*
+		The function implements sifting up
+		Node* start -- the element from which we start sifting
+	*/
+	void siftUp(Node* start);
+
+	/*
+		Function that allocates memory for future tree elements
+		Node* currnet -- an item to allocate memory for its descendants.
+	*/
+	void creator_of_new_elements(Node* current);
 
 public:
 	// Constructor of the Binary_heap class
@@ -112,39 +142,13 @@ public:
 
 	/*
 		A function that searches for the last entered element
-		Node* current -- current tree element
-		size_t ID -- ID of the element to search for
-		size_t current_level -- the number of levels below the current element
-	*/
-	Node* search_by_ID(Node* current, size_t ID, size_t current_level);
-
-	/*
-		A function that searches for the last entered element
 		Node* current -- current element of the binary heap
 		int key -- search item key
 	*/
 	Node* search_by_key(Node* current, int key);
-	
-	/*
-		Function sifts downwards
-		Node* start -- the element from which we start sifting
-	*/
-	void siftDown(Node* start);
-	
-	/*
-		The function implements sifting up
-		Node* start -- the element from which we start sifting
-	*/
-	void siftUp(Node* start);
 
 	// Function that prints the tree to the console
 	void print_tree();
-
-	/*
-		Function that allocates memory for future tree elements
-		Node* currnet -- an item to allocate memory for its descendants.
-	*/
-	void creator_of_new_elements(Node* current);
 
 	/*
 		The function frees memory from the elements of the binary heap
