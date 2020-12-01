@@ -33,6 +33,9 @@ public:
 	// Queue class constructor
 	Queue();
 
+	// Destructor of the Stack class
+	~Queue();
+
 	/*
 		A function that adds an item to the queue
 		Node* value -- the value of the information field of the queue item
